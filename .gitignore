@@ -5,6 +5,7 @@
 .nuxt/
 .output/
 .turbo/
+.worktrees/
 .npm-cache-*/
 .pnpm-store/
 coverage/
