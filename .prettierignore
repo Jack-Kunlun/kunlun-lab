@@ -1,0 +1,12 @@
+.nuxt
+.output
+.turbo
+AGENTS.override.md
+coverage
+dist
+docs/superpowers/plans
+node_modules
+.pnpm-store
+playwright-report
+pnpm-lock.yaml
+test-results

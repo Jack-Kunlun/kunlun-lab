@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+.nuxt/
+.output/
+.turbo/
+.npm-cache-*/
+.pnpm-store/
+coverage/
+dist/
+node_modules/
+playwright-report/
+test-results/

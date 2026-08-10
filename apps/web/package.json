@@ -1,0 +1,23 @@
+{
+  "name": "@kunlun/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@kunlun/jd-skill-radar": "workspace:*",
+    "@kunlun/shared": "workspace:*",
+    "@kunlun/tool-kit": "workspace:*",
+    "@kunlun/ui": "workspace:*",
+    "@nuxt/content": "3.15.2",
+    "nuxt": "4.5.2",
+    "vue": "3.5.41",
+    "zod": "4.4.3"
+  }
+}
