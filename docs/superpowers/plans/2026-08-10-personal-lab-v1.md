@@ -65,13 +65,13 @@ personal-lab/
 │  └─ src/styles/{tokens,base}.css        # B1 设计令牌与无障碍基线
 ├─ packages/tool-kit/
 │  └─ src/{contract,registry,ToolShell}.ts|vue
+├─ packages/eslint-config/{package.json,tsconfig.json,src/index.ts} # 可复用 ESLint 基础规则与插件配置
 ├─ packages/tools/jd-skill-radar/
 │  ├─ src/domain/                        # 字典、匹配、语气、概览、评分、导出
 │  ├─ src/state/useJdRadar.ts             # 明确的工作台状态机
 │  ├─ src/components/                    # 输入、结果、清单与主工作台
 │  └─ src/manifest.ts                    # 工具清单与异步组件入口
 ├─ tests/e2e/                            # 关键用户路径、无障碍与响应式
-├─ config/eslint/base.ts                 # 用户确认的跨包 ESLint 基础规则
 ├─ scripts/                              # TypeScript 版本、格式、注册表和内容校验
 ├─ Dockerfile                            # prune/build/runtime 多阶段镜像
 ├─ compose.yaml                          # 一键部署与健康检查
@@ -157,7 +157,7 @@ trim_trailing_whitespace = false
 *.woff2 binary
 ```
 
-`config/eslint/base.ts` preserves the user-approved rules and helper behavior, adding TypeScript annotations without weakening any rule:
+`packages/eslint-config/src/index.ts` preserves the user-approved rules and helper behavior, adding TypeScript annotations without weakening any rule:
 
 ```ts
 import js from "@eslint/js";
@@ -406,7 +406,9 @@ export type AnalyzeJdResult =
 - Create: `.npmrc`
 - Create: `.prettierignore`
 - Create: `prettier.config.ts`
-- Create: `config/eslint/base.ts`
+- Create: `packages/eslint-config/package.json`
+- Create: `packages/eslint-config/tsconfig.json`
+- Create: `packages/eslint-config/src/index.ts`
 - Create: `eslint.config.ts`
 - Create: `.gitignore`
 - Create: `scripts/verify-versions.ts`
@@ -424,7 +426,7 @@ export type AnalyzeJdResult =
 
 **Interfaces:**
 - Produces: root commands `dev`, `build`, `test`, `test:unit`, `test:e2e`, `typecheck`, `lint`, `format`, `format:check`, `validate`, `validate:versions`, `validate:text`.
-- Produces: workspace package names `@kunlun/shared`, `@kunlun/ui`, `@kunlun/tool-kit`, `@kunlun/jd-skill-radar`, `@kunlun/web`.
+- Produces: workspace package names `@kunlun/shared`, `@kunlun/ui`, `@kunlun/tool-kit`, `@kunlun/eslint-config`, `@kunlun/jd-skill-radar`, `@kunlun/web`.
 
 - [ ] **Step 1: Re-read local instructions and initialize repository metadata**
 
@@ -581,7 +583,7 @@ Use this audited root manifest; if Step 2 returns newer stable releases on imple
 }
 ```
 
-Set both `.nvmrc` and `.node-version` to `24.19.0`. `apps/web/package.json` pins `nuxt: 4.5.2`, `@nuxt/content: 3.15.2`, `vue: 3.5.41`, and `zod: 4.4.3`; internal packages use `workspace:*`. `scripts/verify-versions.ts` must reject external prerelease tags, external ranges, mismatched `.nvmrc` / `.node-version` / `engines.node`, and an unpinned `packageManager`, while explicitly allowing `workspace:*` for internal packages. Root `tsconfig.json` extends `tsconfig.base.json` and includes authored config, scripts, and repository tests; every package has a focused `tsconfig.json`; Nuxt uses `nuxt typecheck`, while Vue packages use `vue-tsc --noEmit` and pure TypeScript packages use `tsc --noEmit`. `turbo.json` must cache `.nuxt/**`, `.output/**`, coverage, and test outputs without caching `dev`.
+Set both `.nvmrc` and `.node-version` to `24.19.0`. `apps/web/package.json` pins `nuxt: 4.5.2`, `@nuxt/content: 3.15.2`, `vue: 3.5.41`, and `zod: 4.4.3`; internal packages use `workspace:*`. Root `package.json` consumes `@kunlun/eslint-config` through `workspace:*`, and `eslint.config.ts` imports the approved base config by package name. `scripts/verify-versions.ts` must reject external prerelease tags, external ranges, mismatched `.nvmrc` / `.node-version` / `engines.node`, and an unpinned `packageManager`, while explicitly allowing `workspace:*` for internal packages. Root `tsconfig.json` extends `tsconfig.base.json` and includes authored config, scripts, and repository tests; every package has a focused `tsconfig.json`; Nuxt uses `nuxt typecheck`, while Vue packages use `vue-tsc --noEmit` and pure TypeScript packages use `tsc --noEmit`. `turbo.json` must cache `.nuxt/**`, `.output/**`, coverage, and test outputs without caching `dev`.
 
 - [ ] **Step 6: Install once and run the repository policy test**
 
@@ -609,7 +611,7 @@ Expected: FAIL because `scripts/lib/text-policy.ts` does not exist yet.
 
 - [ ] **Step 9: Create the approved TypeScript, EditorConfig, Git, Prettier, and ESLint configs**
 
-Create the files exactly from Approved Code Conventions. `eslint.config.ts` must ignore `.nuxt`, `.output`, `coverage`, `dist`, `node_modules`, Playwright reports, generated type declarations, minified assets, and Docker-prune output. It must lint authored `.ts`, `.tsx`, and `.vue` files only, configure `vue-eslint-parser` with `typescript-eslint` as the script parser, and keep the user-approved base rules as the final style override.
+Create the files exactly from Approved Code Conventions. Root `package.json` must consume `@kunlun/eslint-config` through `workspace:*`, and `eslint.config.ts` must import its approved base config by package name. `eslint.config.ts` must ignore `.nuxt`, `.output`, `coverage`, `dist`, `node_modules`, Playwright reports, generated type declarations, minified assets, and Docker-prune output. It must lint authored `.ts`, `.tsx`, and `.vue` files only, configure `vue-eslint-parser` with `typescript-eslint` as the script parser, and keep the user-approved base rules as the final style override.
 
 `scripts/verify-text-format.ts` must enumerate tracked and not-ignored untracked text files with `git ls-files --cached --others --exclude-standard -z`, reject UTF-8 BOM, CRLF or bare CR bytes, missing final LF, and authored `.js` / `.jsx` / `.mjs` / `.cjs` files. It skips binary paths declared in `.gitattributes` and generated directories. Generated runtime content below ignored build directories such as `.output` is outside the authored-source check.
 
