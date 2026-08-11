@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import approvedBaseConfig, {
-  createBaseRulesConfig,
-} from "@kunlun/eslint-config";
+import approvedBaseConfig, { createBaseRulesConfig } from "@kunlun/eslint-config";
 
 void test("exports the approved base config through the workspace package", () => {
   const finalConfig = approvedBaseConfig.at(-1);
