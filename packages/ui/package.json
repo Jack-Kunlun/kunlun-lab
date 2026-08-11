@@ -3,6 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./styles/base.css": "./src/styles/base.css",
+    "./styles/tokens.css": "./src/styles/tokens.css"
+  },
   "scripts": {
     "build": "vue-tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
@@ -10,5 +15,8 @@
   },
   "peerDependencies": {
     "vue": "3.5.41"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.8"
   }
 }

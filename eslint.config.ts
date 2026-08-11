@@ -81,9 +81,17 @@ export default defineConfig(
     },
   },
   createBaseRulesConfig({
+    files: ["**/*.{ts,tsx}"],
     ruleOverrides: {
       ...baseRules,
       ...typeAwareRules,
     },
   }),
+  {
+    files: ["**/*.vue"],
+    rules: {
+      ...baseRules,
+      ...typeAwareRules,
+    },
+  },
 );

@@ -5,6 +5,7 @@ export default {
   printWidth: 100,
   semi: true,
   singleQuote: false,
+  singleAttributePerLine: true,
   tabWidth: 2,
   trailingComma: "all",
   useTabs: false,

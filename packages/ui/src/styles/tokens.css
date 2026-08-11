@@ -1,0 +1,14 @@
+:root {
+  color-scheme: dark;
+  --lab-bg: #0d1117;
+  --lab-surface: #131922;
+  --lab-border: #2a3441;
+  --lab-text: #e6edf3;
+  --lab-muted: #9ba7b4;
+  --lab-accent: #8bffb0;
+  --lab-experiment: #ab9cff;
+  --lab-focus: #8bffb0;
+  --lab-font-sans:
+    ui-sans-serif, system-ui, -apple-system, blinkmacsystemfont, "Segoe UI", sans-serif;
+  --lab-font-mono: ui-monospace, sfmono-regular, consolas, "Liberation Mono", monospace;
+}
