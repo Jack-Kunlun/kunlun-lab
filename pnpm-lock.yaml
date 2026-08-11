@@ -71,6 +71,9 @@ importers:
       vue-tsc:
         specifier: 3.3.9
         version: 3.3.9(typescript@6.0.3)
+      yaml:
+        specifier: 2.9.0
+        version: 2.9.0
 
   apps/web:
     dependencies:
