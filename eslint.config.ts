@@ -92,6 +92,7 @@ export default defineConfig(
     rules: {
       ...baseRules,
       ...typeAwareRules,
+      "vue/singleline-html-element-content-newline": "off",
     },
   },
 );
