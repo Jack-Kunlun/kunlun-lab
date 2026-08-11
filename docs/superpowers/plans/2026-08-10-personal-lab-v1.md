@@ -517,8 +517,12 @@ test("pins all direct dependencies and one Node major", async () => {
   assert.match(root.engines.node, /^\d+\.x$/);
 
   for (const section of ["dependencies", "devDependencies"] as const) {
-    for (const version of Object.values(root[section] ?? {})) {
-      assert.match(version, /^\d+\.\d+\.\d+$/);
+    for (const [name, version] of Object.entries(root[section] ?? {})) {
+      if (name.startsWith("@kunlun/")) {
+        assert.equal(version, "workspace:*");
+      } else {
+        assert.match(version, /^\d+\.\d+\.\d+$/);
+      }
     }
   }
 });
@@ -559,7 +563,7 @@ Use this audited root manifest; if Step 2 returns newer stable releases on imple
   },
   "devDependencies": {
     "@axe-core/playwright": "4.12.1",
-    "@eslint/js": "9.39.5",
+    "@kunlun/eslint-config": "workspace:*",
     "@nuxt/test-utils": "4.1.0",
     "@playwright/test": "1.62.1",
     "@types/node": "24.13.3",
@@ -567,15 +571,12 @@ Use this audited root manifest; if Step 2 returns newer stable releases on imple
     "axe-core": "4.13.0",
     "eslint": "9.39.5",
     "eslint-import-resolver-typescript": "4.4.5",
-    "eslint-plugin-import": "2.32.0",
-    "eslint-plugin-unicorn": "65.0.1",
     "eslint-plugin-vue": "10.10.0",
     "happy-dom": "20.11.2",
     "jiti": "2.7.0",
     "prettier": "3.9.6",
     "turbo": "2.10.9",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.66.0",
     "vitest": "4.1.10",
     "vue-eslint-parser": "10.4.1",
     "vue-tsc": "3.3.9"
