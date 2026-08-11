@@ -6,7 +6,7 @@ import approvedBaseConfig, {
   baseRules,
   createBaseRulesConfig,
   tseslint,
-} from "./config/eslint/base.ts";
+} from "@kunlun/eslint-config";
 
 const ignoredPaths = [
   "**/.nuxt/**",

@@ -1,0 +1,23 @@
+{
+  "name": "@kunlun/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eslint/js": "9.39.5",
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-unicorn": "65.0.1",
+    "typescript-eslint": "8.66.0"
+  },
+  "peerDependencies": {
+    "eslint": "9.39.5"
+  }
+}
