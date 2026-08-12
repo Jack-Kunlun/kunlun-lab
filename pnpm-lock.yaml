@@ -14,6 +14,12 @@ importers:
       '@kunlun/eslint-config':
         specifier: workspace:*
         version: link:packages/eslint-config
+      '@kunlun/jd-skill-radar':
+        specifier: workspace:*
+        version: link:packages/tools/jd-skill-radar
+      '@kunlun/tool-kit':
+        specifier: workspace:*
+        version: link:packages/tool-kit
       '@nuxt/test-utils':
         specifier: 4.1.0
         version: 4.1.0(@playwright/test@1.62.1)(@vue/test-utils@2.4.11(@vue/compiler-dom@3.5.41)(@vue/server-renderer@3.5.41)(vue@3.5.41(typescript@6.0.3)))(esbuild@0.28.2)(happy-dom@20.11.2)(magicast@0.5.4)(playwright-core@1.62.1)(rolldown@1.2.3)(rollup@4.62.4)(typescript@6.0.3)(vite@8.2.1(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.12)(yaml@2.9.0))(vitest@4.1.10(@types/node@24.13.3)(happy-dom@20.11.2)(vite@8.2.1(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.49.2)(tsx@4.23.12)(yaml@2.9.0)))
