@@ -81,7 +81,6 @@ describe("validateWorkToolLinks", () => {
         [{ title: "缺失工具作品", toolId: "missing" }],
         new Map<string, ToolManifest>(),
       );
-      // eslint-disable-next-line quotes -- Exact message needs embedded double quotes.
-    }).toThrow('Unknown toolId "missing" in work "缺失工具作品".');
+    }).toThrow("Unknown toolId \u0022missing\u0022 in work \u0022缺失工具作品\u0022.");
   });
 });
