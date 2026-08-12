@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "build": "vue-tsc --noEmit -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
@@ -15,5 +18,9 @@
   },
   "peerDependencies": {
     "vue": "3.5.41"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.8",
+    "@vue/test-utils": "2.4.11"
   }
 }
