@@ -15,6 +15,9 @@
   "dependencies": {
     "@kunlun/shared": "workspace:*"
   },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.8"
+  },
   "peerDependencies": {
     "vue": "3.5.41"
   }
