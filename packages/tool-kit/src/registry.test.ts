@@ -1,0 +1,87 @@
+import type { ToolManifest } from "@kunlun/shared";
+import { describe, expect, it } from "vitest";
+import { defineComponent } from "vue";
+import { createToolRegistry, validateWorkToolLinks } from "./registry.ts";
+
+const emptyComponent = defineComponent({
+  render: () => null,
+});
+
+function manifest(id = "radar", overrides: Partial<ToolManifest> = {}): ToolManifest {
+  return {
+    capabilities: [],
+    component: () => Promise.resolve({ default: emptyComponent }),
+    id,
+    runtime: "client",
+    status: "draft",
+    title: "测试工具",
+    ...overrides,
+  };
+}
+
+describe("createToolRegistry", () => {
+  it("indexes a valid manifest by its stable ID", () => {
+    const radar = manifest("jd-skill-radar");
+    const registry = createToolRegistry([radar]);
+
+    expect([...registry.keys()]).toEqual(["jd-skill-radar"]);
+    expect(registry.get("jd-skill-radar")).toBe(radar);
+  });
+
+  it("rejects duplicate manifest IDs", () => {
+    expect(() => createToolRegistry([manifest("radar"), manifest("radar")])).toThrow(
+      "Duplicate tool id: radar",
+    );
+  });
+
+  it.each([
+    [manifest(""), "Tool id must be non-empty."],
+    [manifest("Bad_ID"), "Invalid tool id: Bad_ID"],
+    [manifest("radar", { title: " " }), "Tool title must be non-empty: radar"],
+    [
+      { ...manifest("radar"), runtime: "server" } as unknown as ToolManifest,
+      "Unsupported tool runtime for radar: server",
+    ],
+    [
+      { ...manifest("radar"), status: "archived" } as unknown as ToolManifest,
+      "Unsupported tool status for radar: archived",
+    ],
+    [
+      { ...manifest("radar"), capabilities: ["camera"] } as unknown as ToolManifest,
+      "Unsupported capability for radar: camera",
+    ],
+    [
+      manifest("radar", { capabilities: ["clipboard", "clipboard"] }),
+      "Duplicate capability for radar: clipboard",
+    ],
+    [
+      { ...manifest("radar"), component: null } as unknown as ToolManifest,
+      "Invalid component loader for radar.",
+    ],
+  ])("rejects an invalid manifest", (invalidManifest, expectedMessage) => {
+    expect(() => createToolRegistry([invalidManifest])).toThrow(expectedMessage);
+  });
+});
+
+describe("validateWorkToolLinks", () => {
+  it("accepts external works and registered internal tools", () => {
+    const registry = createToolRegistry([manifest("jd-skill-radar")]);
+
+    expect(() => {
+      validateWorkToolLinks(
+        [{ title: "外部作品" }, { title: "前端岗位 JD 技能雷达", toolId: "jd-skill-radar" }],
+        registry,
+      );
+    }).not.toThrow();
+  });
+
+  it("rejects a work that references a missing tool", () => {
+    expect(() => {
+      validateWorkToolLinks(
+        [{ title: "缺失工具作品", toolId: "missing" }],
+        new Map<string, ToolManifest>(),
+      );
+      // eslint-disable-next-line quotes -- Exact message needs embedded double quotes.
+    }).toThrow('Unknown toolId "missing" in work "缺失工具作品".');
+  });
+});
