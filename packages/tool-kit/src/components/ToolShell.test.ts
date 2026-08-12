@@ -62,11 +62,19 @@ describe("ToolShell", () => {
   });
 
   it("renders custom error content without exposing the exception", () => {
+    let receivedSlotProps: Record<string, never> | undefined;
     const wrapper = mount(ToolShell, {
       props: { state: "error", error: new Error("private details") },
-      slots: { error: "自定义安全错误状态" },
+      slots: {
+        error: (slotProps: Record<string, never>) => {
+          receivedSlotProps = slotProps;
+
+          return "自定义安全错误状态";
+        },
+      },
     });
 
+    expect(receivedSlotProps).toEqual({});
     expect(wrapper.get("[role=alert]").text()).toContain("自定义安全错误状态");
     expect(wrapper.text()).not.toContain("private details");
   });
