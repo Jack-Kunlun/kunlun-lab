@@ -16,7 +16,9 @@ const CLAUSE_DELIMITERS = new Set([
 ]);
 
 export function foldForMatch(value: string): string {
-  return value.toLocaleLowerCase("en-US");
+  return Array.from(value, (character) =>
+    /^[A-Z]$/.test(character) ? character.toLocaleLowerCase("en-US") : character,
+  ).join("");
 }
 
 export function isAsciiWordCharacter(value: string | undefined): boolean {

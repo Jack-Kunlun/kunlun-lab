@@ -45,11 +45,29 @@ describe("matchSkills", () => {
     expect(matches[0]?.context).toContain("TypeScript");
   });
 
+  it("preserves offsets after a non-length-preserving Unicode character", () => {
+    const text = "İ TypeScript";
+    const matches = matchSkills(text);
+
+    expect(matches).toHaveLength(1);
+    expect(matches[0]?.alias).toBe("TypeScript");
+    expect(text.slice(matches[0]?.start ?? 0, matches[0]?.end ?? 0)).toBe("TypeScript");
+  });
+
   it("detects tone from each local clause rather than shared display context", () => {
     const matches = matchSkills("熟悉 Vue，TypeScript 优先");
 
     expect(matches.map(({ skillId, tone }) => ({ skillId, tone }))).toEqual([
       { skillId: "vue", tone: "familiar" },
+      { skillId: "typescript", tone: "preferred" },
+    ]);
+  });
+
+  it("keeps Node.js punctuation inside its local clause", () => {
+    const matches = matchSkills("熟悉 Node.js，TypeScript 优先");
+
+    expect(matches.map(({ skillId, tone }) => ({ skillId, tone }))).toEqual([
+      { skillId: "nodejs", tone: "familiar" },
       { skillId: "typescript", tone: "preferred" },
     ]);
   });
