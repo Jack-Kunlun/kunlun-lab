@@ -17,4 +17,8 @@ describe("detectTone", () => {
   it("uses fixed precedence when multiple signals appear", () => {
     expect(detectTone("熟悉并优先考虑精通 TypeScript 的候选人")).toBe("required");
   });
+
+  it("prioritizes preferred over familiar", () => {
+    expect(detectTone("熟悉 Vue，优先考虑相关经验")).toBe("preferred");
+  });
 });
