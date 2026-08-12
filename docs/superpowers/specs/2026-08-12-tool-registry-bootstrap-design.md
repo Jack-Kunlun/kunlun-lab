@@ -50,7 +50,8 @@ derive valid IDs from package names.
 - runtime must be `client`;
 - status must not be `archived`;
 - capabilities must be unique and limited to `clipboard` and `download`;
-- component must be an async loader function.
+- component must be callable. The registry never invokes a loader during registration; the
+  `ToolManifest` TypeScript contract enforces its Promise return type for authored manifests.
 
 `validateWorkToolLinks` ignores works without `toolId`. A referenced ID must exist in the
 registry; failures include both the work title and invalid ID. It does not decide whether a draft
