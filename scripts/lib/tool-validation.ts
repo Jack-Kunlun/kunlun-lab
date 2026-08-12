@@ -1,12 +1,13 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { parse } from "yaml";
-import type { ToolManifest } from "@kunlun/shared";
 import {
   createToolRegistry,
   validateWorkToolLinks,
   type WorkToolLink,
 } from "@kunlun/tool-kit/registry";
+
+type ToolManifest = Parameters<typeof createToolRegistry>[0][number];
 
 function extractFrontmatter(content: string): string | undefined {
   if (!content.startsWith("---\n")) {

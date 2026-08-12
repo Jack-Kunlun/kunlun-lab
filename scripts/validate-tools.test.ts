@@ -31,36 +31,32 @@ void test("accepts checked-in works whose internal tools are explicitly register
   writeWork("radar.md", "前端岗位 JD 技能雷达", "jd-skill-radar");
   writeWork("external.md", "外部作品");
 
-  assert.doesNotThrow(() =>
-    validateToolDirectory(path.join(fixtureDirectory, "works"), [jdSkillRadarManifest]),
-  );
+  assert.doesNotThrow(() => {
+    validateToolDirectory(path.join(fixtureDirectory, "works"), [jdSkillRadarManifest]);
+  });
 });
 
 void test("reports the work title and unknown tool ID", () => {
   writeWork("missing.md", "缺失工具作品", "missing");
 
-  assert.throws(
-    () => validateToolDirectory(path.join(fixtureDirectory, "works"), [jdSkillRadarManifest]),
-    /Unknown toolId "missing" in work "缺失工具作品"\./,
-  );
+  assert.throws(() => {
+    validateToolDirectory(path.join(fixtureDirectory, "works"), [jdSkillRadarManifest]);
+  }, /Unknown toolId "missing" in work "缺失工具作品"\./);
 });
 
 void test("rejects duplicate explicit manifests before validating works", () => {
-  assert.throws(
-    () =>
-      validateToolDirectory(path.join(fixtureDirectory, "works"), [
-        jdSkillRadarManifest,
-        jdSkillRadarManifest,
-      ]),
-    /Duplicate tool id: jd-skill-radar/,
-  );
+  assert.throws(() => {
+    validateToolDirectory(path.join(fixtureDirectory, "works"), [
+      jdSkillRadarManifest,
+      jdSkillRadarManifest,
+    ]);
+  }, /Duplicate tool id: jd-skill-radar/);
 });
 
 void test("reports malformed or missing work frontmatter", () => {
   writeFileSync(path.join(fixtureDirectory, "works", "broken.md"), "# 无 frontmatter\n", "utf8");
 
-  assert.throws(
-    () => validateToolDirectory(path.join(fixtureDirectory, "works"), [jdSkillRadarManifest]),
-    /broken\.md: 缺少 YAML frontmatter。/,
-  );
+  assert.throws(() => {
+    validateToolDirectory(path.join(fixtureDirectory, "works"), [jdSkillRadarManifest]);
+  }, /broken\.md: 缺少 YAML frontmatter。/);
 });
