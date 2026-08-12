@@ -1,6 +1,13 @@
+import { VERIFIED_NOTE_LINKS } from "./note-links.ts";
 import type { SkillDefinition } from "./types.ts";
 
-export const SKILLS: readonly SkillDefinition[] = [
+const withVerifiedNoteLink = (definition: Omit<SkillDefinition, "noteUrl">): SkillDefinition => {
+  const noteUrl = VERIFIED_NOTE_LINKS[definition.id];
+
+  return noteUrl === undefined ? definition : { ...definition, noteUrl };
+};
+
+const skillDefinitions: readonly Omit<SkillDefinition, "noteUrl">[] = [
   {
     id: "javascript",
     label: "JavaScript",
@@ -198,3 +205,5 @@ export const SKILLS: readonly SkillDefinition[] = [
     checklistLabel: "准备敏捷协作实践案例",
   },
 ];
+
+export const SKILLS: readonly SkillDefinition[] = skillDefinitions.map(withVerifiedNoteLink);

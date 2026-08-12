@@ -54,5 +54,6 @@ describe("SKILLS", () => {
   it("does not invent unverified knowledge-base links", () => {
     expect(VERIFIED_NOTE_LINKS).toEqual({});
     expect(SKILLS.every(({ noteUrl }) => noteUrl === undefined)).toBe(true);
+    expect(SKILLS.every((skill) => !Object.hasOwn(skill, "noteUrl"))).toBe(true);
   });
 });
