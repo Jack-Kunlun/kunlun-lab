@@ -948,19 +948,26 @@ git commit -m "feat(content): define collections and initial entries"
 ### Task 6: Tool Contract, Registry Validation, and Isolated ToolShell
 
 **Files:**
+- Modify: `packages/shared/src/content.ts`
+- Modify: `packages/shared/src/index.ts`
 - Create: `packages/tool-kit/src/contract.ts`
 - Create: `packages/tool-kit/src/registry.ts`
 - Create: `packages/tool-kit/src/components/ToolShell.vue`
 - Create: `packages/tool-kit/src/index.ts`
+- Create: `packages/tools/jd-skill-radar/src/components/JdSkillRadarDraft.vue`
+- Create: `packages/tools/jd-skill-radar/src/manifest.ts`
+- Create: `packages/tools/jd-skill-radar/src/index.ts`
 - Create: `scripts/validate-tools.ts`
 - Test: `packages/tool-kit/src/registry.test.ts`
 - Test: `packages/tool-kit/src/components/ToolShell.test.ts`
+- Test: `scripts/validate-tools.test.ts`
 
 **Interfaces:**
 - Produces: `ToolManifest` from Shared Domain Contracts.
 - Produces: `createToolRegistry(manifests: readonly ToolManifest[]): ReadonlyMap<string, ToolManifest>`.
 - Produces: `validateWorkToolLinks(works, registry): void`.
 - Produces: `ToolShell` slots `default`, `loading`, `error`, `feedback` and retry event `retry`.
+- Produces: the authoritative `jdSkillRadarManifest` as a truthful draft manifest until Task 10.
 
 - [ ] **Step 1: Write failing registry and boundary tests**
 
@@ -997,11 +1004,24 @@ Expected: FAIL because the package has no implementation.
 
 - [ ] **Step 3: Implement manifest validation and ToolShell states**
 
-The registry must reject empty IDs, duplicate IDs, non-client runtimes, and unsupported capabilities. `ToolShell` must preserve the surrounding page and navigation while replacing only the tool viewport with loading/error/feedback content.
+Move the stable `ToolManifest` interface from the Shared Domain Contracts section into
+`@kunlun/shared`. The registry must reject empty or malformed IDs, duplicate IDs, non-client
+runtimes, archived statuses, unsupported or duplicate capabilities, and invalid loaders.
+`ToolShell` must preserve the surrounding page and navigation while replacing only the tool
+viewport with ready/loading/error/feedback content. It must never render an exception message or
+stack.
+
+Create `jdSkillRadarManifest` now with the stable ID and title, `runtime: "client"`,
+`status: "draft"`, no capabilities, and an async draft placeholder component. The placeholder
+must state that the tool is still under construction and must not claim analysis is available.
+This is the single authoritative manifest that Task 10 will upgrade in place.
 
 - [ ] **Step 4: Connect validation to the root build gate**
 
-Set root `prebuild` to `node scripts/validate-content.ts && node scripts/validate-tools.ts`. The tool validator must read the checked-in work metadata and fail with the work title plus invalid `toolId`.
+Set root `prebuild` to `node scripts/validate-content.ts && node scripts/validate-tools.ts`. The tool
+validator must import an explicit manifest list containing `jdSkillRadarManifest`, read the
+checked-in work metadata, and fail with the work title plus invalid `toolId`. Do not use filesystem
+manifest discovery or a separate tool-ID catalog.
 
 - [ ] **Step 5: Run tests and deliberate failure probes**
 
@@ -1012,8 +1032,8 @@ Expected: PASS. Temporarily duplicating a manifest ID or changing checked-in `to
 - [ ] **Step 6: Commit**
 
 ```powershell
-git add -- packages/tool-kit scripts/validate-tools.ts package.json
-git commit -m "feat(tool-kit): validate and isolate internal tools"
+git add -- packages/shared packages/tool-kit packages/tools/jd-skill-radar scripts/validate-tools.ts scripts/validate-tools.test.ts package.json
+git commit -m "feat(tool-kit): 校验并隔离内部工具"
 ```
 
 ---
@@ -1259,13 +1279,14 @@ git commit -m "feat(jd-radar): add local export and workspace state"
 - Create: `packages/tools/jd-skill-radar/src/components/PreparationChecklist.vue`
 - Create: `packages/tools/jd-skill-radar/src/components/JdSkillRadar.vue`
 - Create: `packages/tools/jd-skill-radar/src/styles.css`
-- Create: `packages/tools/jd-skill-radar/src/manifest.ts`
-- Create: `packages/tools/jd-skill-radar/src/index.ts`
+- Modify: `packages/tools/jd-skill-radar/src/manifest.ts`
+- Modify: `packages/tools/jd-skill-radar/src/index.ts`
 - Test: `packages/tools/jd-skill-radar/src/components/JdSkillRadar.test.ts`
 
 **Interfaces:**
-- Consumes: `useJdRadar`, UI primitives, `ToolManifest`.
-- Produces: default async component `JdSkillRadar` and manifest ID `jd-skill-radar` with capabilities `clipboard`, `download`.
+- Consumes: `useJdRadar`, UI primitives, `ToolManifest`, and the draft manifest identity from Task 6.
+- Produces: default async component `JdSkillRadar`; upgrades the existing manifest ID
+  `jd-skill-radar` to status `alpha` with capabilities `clipboard`, `download`.
 
 - [ ] **Step 1: Write failing user-state component tests**
 
@@ -1285,7 +1306,7 @@ Expected: FAIL.
 
 At desktop widths use `grid-template-columns: minmax(18rem,.85fr) minmax(0,1.45fr)`; under 900px stack input over results. Idle state constrains the input to a readable centered width. Use real `<button>`, `<textarea>`, `<input type="checkbox">`, `<meter>` or accessible progress semantics, visible textual scores and tones, and a persistent scoring disclaimer.
 
-- [ ] **Step 5: Implement the manifest**
+- [ ] **Step 5: Upgrade the draft manifest in place**
 
 ```ts
 export const jdSkillRadarManifest: ToolManifest = {
@@ -1297,6 +1318,8 @@ export const jdSkillRadarManifest: ToolManifest = {
   component: () => import("./components/JdSkillRadar.vue"),
 };
 ```
+
+Replace the Task 6 placeholder loader rather than adding a second manifest or tool-ID catalog.
 
 - [ ] **Step 6: Run package verification and commit**
 
