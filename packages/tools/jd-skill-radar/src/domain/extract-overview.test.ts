@@ -69,4 +69,10 @@ describe("extractOverview", () => {
       "Angular",
     ]);
   });
+
+  it("does not infer React from a Next.js match", () => {
+    const keywords = [createKeyword("nextjs", "Next.js", 8, 2)];
+
+    expect(extractOverview("职位：前端工程师", keywords).primaryFrameworks).toEqual(["Next.js"]);
+  });
 });
