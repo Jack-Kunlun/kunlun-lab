@@ -29,9 +29,10 @@ function extractRole(text: string): string {
 
   for (const line of lines) {
     const match = explicitPattern.exec(line.trim());
+    const value = match?.[1]?.trim();
 
-    if (match?.[1].trim()) {
-      return match[1].trim();
+    if (value !== undefined && value.length > 0) {
+      return value;
     }
   }
 
@@ -96,9 +97,10 @@ function extractLocation(text: string): string {
 
   for (const line of lines) {
     const match = locationPattern.exec(line.trim());
+    const value = match?.[1]?.trim();
 
-    if (match?.[1].trim()) {
-      location = match[1].trim();
+    if (value !== undefined && value.length > 0) {
+      location = value;
       break;
     }
   }
