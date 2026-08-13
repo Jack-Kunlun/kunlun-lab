@@ -20,11 +20,13 @@ describe("buildChecklist", () => {
       keyword({ skillId: "typescript" }),
     ];
 
-    expect(buildChecklist(input)).toEqual([
+    const result = buildChecklist(input);
+
+    expect(result).toEqual([
       { id: "prepare:typescript", label: "复习 TypeScript 核心知识" },
       { id: "prepare:vue", label: "准备 Vue 项目实践案例" },
     ]);
-    expect(Object.hasOwn(buildChecklist(input)[0], "noteUrl")).toBe(false);
+    expect(result.every((item) => !Object.hasOwn(item, "noteUrl"))).toBe(true);
     expect(input).toEqual([
       keyword({ skillId: "vue", label: "Vue", category: "framework" }),
       keyword({ skillId: "typescript" }),
