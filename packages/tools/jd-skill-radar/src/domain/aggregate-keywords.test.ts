@@ -35,25 +35,33 @@ describe("aggregateKeywords", () => {
 
   it("sorts by total weight, count, label, then skill ID", () => {
     const matches = [
-      match({ skillId: "javascript", alias: "JavaScript", context: "javascript" }),
+      match({
+        skillId: "javascript",
+        alias: "JavaScript",
+        tone: "preferred",
+        context: "javascript",
+      }),
       match({ skillId: "typescript", context: "typescript one", tone: "preferred" }),
       match({ skillId: "typescript", context: "typescript two", tone: "neutral" }),
-      match({ skillId: "css", alias: "CSS", context: "css" }),
-      match({ skillId: "sass", alias: "Sass", context: "sass" }),
+      match({ skillId: "sass", alias: "Sass", context: "sass one" }),
+      match({ skillId: "sass", alias: "Sass", context: "sass two" }),
+      match({ skillId: "sass", alias: "Sass", context: "sass three" }),
+      match({ skillId: "css", alias: "CSS", tone: "preferred", context: "css" }),
     ];
 
     expect(aggregateKeywords(matches).map(({ skillId }) => skillId)).toEqual([
       "typescript",
+      "sass",
       "css",
       "javascript",
-      "sass",
     ]);
   });
 
   it("throws for an unknown skill ID", () => {
-    expect(() => aggregateKeywords([match({ skillId: "missing" })])).toThrow(
-      // prettier-ignore
-      "Unknown skillId \"missing\" in JD analysis.",
+    const unknownSkillId = "missing";
+
+    expect(() => aggregateKeywords([match({ skillId: unknownSkillId })])).toThrow(
+      `Unknown skillId "${unknownSkillId}" in JD analysis.`,
     );
   });
 });
