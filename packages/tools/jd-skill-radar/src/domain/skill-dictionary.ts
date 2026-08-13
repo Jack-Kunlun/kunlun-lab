@@ -32,14 +32,14 @@ const skillDefinitions: readonly Omit<SkillDefinition, "noteUrl">[] = [
   {
     id: "css",
     label: "CSS",
-    category: "language",
+    category: "css",
     aliases: ["CSS", "CSS3"],
     checklistLabel: "复习 CSS 布局与响应式实践",
   },
   {
     id: "sass",
     label: "Sass",
-    category: "language",
+    category: "css",
     aliases: ["Sass", "SCSS"],
     checklistLabel: "复习 Sass 样式组织方法",
   },

@@ -56,4 +56,12 @@ describe("SKILLS", () => {
     expect(SKILLS.every(({ noteUrl }) => noteUrl === undefined)).toBe(true);
     expect(SKILLS.every((skill) => !Object.hasOwn(skill, "noteUrl"))).toBe(true);
   });
+
+  it("classifies CSS preprocessors and utilities under the css category", () => {
+    expect(
+      SKILLS.filter((skill) => ["css", "sass", "tailwind-css"].includes(skill.id)).map(
+        ({ category }) => category,
+      ),
+    ).toEqual(["css", "css", "css"]);
+  });
 });
