@@ -23,4 +23,21 @@ describe("validateInput", () => {
     expect(validateInput("V".repeat(80))).toBeUndefined();
     expect(validateInput("V".repeat(20_000))).toBeUndefined();
   });
+
+  it("keeps fixed errors immutable across calls", () => {
+    const first = validateInput("");
+
+    expect(first).toBeDefined();
+
+    if (first === undefined) {
+      throw new Error("Expected empty input to return an error");
+    }
+
+    expect(Reflect.set(first, "message", "tampered")).toBe(false);
+
+    expect(validateInput("")).toEqual({
+      code: "EMPTY",
+      message: "请粘贴一份前端岗位 JD。",
+    });
+  });
 });
