@@ -73,6 +73,7 @@ export function useJdRadar(options: UseJdRadarOptions = {}): JdRadarController {
   const feedback = shallowRef<JdRadarFeedback | null>(null);
   let inputVersion = 0;
   let analysisRunVersion = 0;
+  let resetEpoch = 0;
 
   function setInput(value: string): void {
     if (input.value === value) {
@@ -145,6 +146,7 @@ export function useJdRadar(options: UseJdRadarOptions = {}): JdRadarController {
   function reset(): void {
     inputVersion += 1;
     analysisRunVersion += 1;
+    resetEpoch += 1;
     input.value = "";
     status.value = "idle";
     analysis.value = null;
@@ -183,6 +185,8 @@ export function useJdRadar(options: UseJdRadarOptions = {}): JdRadarController {
   }
 
   async function copyMarkdown(): Promise<void> {
+    const exportEpoch = resetEpoch;
+
     feedback.value = null;
     const context = getExportContext();
 
@@ -192,13 +196,24 @@ export function useJdRadar(options: UseJdRadarOptions = {}): JdRadarController {
 
     try {
       await copyPort(toMarkdown(context.analysis, checkedIds.value));
+
+      if (exportEpoch !== resetEpoch) {
+        return;
+      }
+
       feedback.value = context.stale ? COPY_STALE_SUCCESS : COPY_SUCCESS;
     } catch (_error: unknown) {
+      if (exportEpoch !== resetEpoch) {
+        return;
+      }
+
       feedback.value = COPY_FAILED;
     }
   }
 
   async function downloadMarkdown(): Promise<void> {
+    const exportEpoch = resetEpoch;
+
     feedback.value = null;
     const context = getExportContext();
 
@@ -208,8 +223,17 @@ export function useJdRadar(options: UseJdRadarOptions = {}): JdRadarController {
 
     try {
       await downloadPort(toMarkdown(context.analysis, checkedIds.value), MARKDOWN_FILENAME);
+
+      if (exportEpoch !== resetEpoch) {
+        return;
+      }
+
       feedback.value = context.stale ? DOWNLOAD_STALE_SUCCESS : DOWNLOAD_SUCCESS;
     } catch (_error: unknown) {
+      if (exportEpoch !== resetEpoch) {
+        return;
+      }
+
       feedback.value = DOWNLOAD_FAILED;
     }
   }

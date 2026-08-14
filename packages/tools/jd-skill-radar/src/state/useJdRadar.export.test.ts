@@ -29,6 +29,23 @@ const analysis: JdAnalysis = {
 
 const successResult: AnalyzeJdResult = { ok: true, value: analysis };
 
+interface Deferred<T> {
+  promise: Promise<T>;
+  resolve: (value: T | PromiseLike<T>) => void;
+  reject: (reason?: unknown) => void;
+}
+
+function createDeferred<T>(): Deferred<T> {
+  let resolve!: Deferred<T>["resolve"];
+  let reject!: Deferred<T>["reject"];
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+
+  return { promise, resolve, reject };
+}
+
 describe("useJdRadar exports", () => {
   it("copies ready output and reports success", async () => {
     const copy = vi.fn<(markdown: string) => Promise<void>>().mockResolvedValue();
@@ -119,5 +136,73 @@ describe("useJdRadar exports", () => {
       kind: "error",
       message: "下载失败，请重试",
     });
+  });
+
+  it("keeps reset feedback clear when a deferred copy resolves", async () => {
+    const deferred = createDeferred<undefined>();
+    const copy = vi.fn<(markdown: string) => Promise<void>>().mockReturnValue(deferred.promise);
+    const radar = useJdRadar({ analyze: () => successResult, copy });
+
+    radar.setInput(validJd);
+    await radar.analyze();
+    const pending = radar.copyMarkdown();
+
+    radar.reset();
+    deferred.resolve(undefined);
+    await pending;
+
+    expect(radar.feedback.value).toBeNull();
+  });
+
+  it("keeps reset feedback clear when a deferred copy rejects", async () => {
+    const deferred = createDeferred<undefined>();
+    const copy = vi.fn<(markdown: string) => Promise<void>>().mockReturnValue(deferred.promise);
+    const radar = useJdRadar({ analyze: () => successResult, copy });
+
+    radar.setInput(validJd);
+    await radar.analyze();
+    const pending = radar.copyMarkdown();
+
+    radar.reset();
+    deferred.reject(new Error("obsolete marker"));
+    await pending;
+
+    expect(radar.feedback.value).toBeNull();
+  });
+
+  it("keeps reset feedback clear when a deferred download resolves", async () => {
+    const deferred = createDeferred<undefined>();
+    const download = vi
+      .fn<(markdown: string, filename: string) => Promise<void>>()
+      .mockReturnValue(deferred.promise);
+    const radar = useJdRadar({ analyze: () => successResult, download });
+
+    radar.setInput(validJd);
+    await radar.analyze();
+    const pending = radar.downloadMarkdown();
+
+    radar.reset();
+    deferred.resolve(undefined);
+    await pending;
+
+    expect(radar.feedback.value).toBeNull();
+  });
+
+  it("keeps reset feedback clear when a deferred download rejects", async () => {
+    const deferred = createDeferred<undefined>();
+    const download = vi
+      .fn<(markdown: string, filename: string) => Promise<void>>()
+      .mockReturnValue(deferred.promise);
+    const radar = useJdRadar({ analyze: () => successResult, download });
+
+    radar.setInput(validJd);
+    await radar.analyze();
+    const pending = radar.downloadMarkdown();
+
+    radar.reset();
+    deferred.reject(new Error("obsolete marker"));
+    await pending;
+
+    expect(radar.feedback.value).toBeNull();
   });
 });

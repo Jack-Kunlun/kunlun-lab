@@ -148,6 +148,52 @@ describe("useJdRadar lifecycle", () => {
     });
   });
 
+  it("keeps idle state when a deferred analysis resolves after reset", async () => {
+    const deferred = createDeferred<AnalyzeJdResult>();
+    const analyze = vi
+      .fn<(text: string) => Promise<AnalyzeJdResult>>()
+      .mockReturnValue(deferred.promise);
+    const radar = useJdRadar({ analyze });
+
+    radar.setInput(validJd);
+    const pending = radar.analyze();
+
+    radar.reset();
+    deferred.resolve(successResult);
+    await pending;
+
+    expect(radar.snapshot()).toEqual({
+      input: "",
+      status: "idle",
+      analysis: null,
+      checkedIds: [],
+      feedback: null,
+    });
+  });
+
+  it("keeps idle state when a deferred analysis rejects after reset", async () => {
+    const deferred = createDeferred<AnalyzeJdResult>();
+    const analyze = vi
+      .fn<(text: string) => Promise<AnalyzeJdResult>>()
+      .mockReturnValue(deferred.promise);
+    const radar = useJdRadar({ analyze });
+
+    radar.setInput(validJd);
+    const pending = radar.analyze();
+
+    radar.reset();
+    deferred.reject(new Error("obsolete marker"));
+    await pending;
+
+    expect(radar.snapshot()).toEqual({
+      input: "",
+      status: "idle",
+      analysis: null,
+      checkedIds: [],
+      feedback: null,
+    });
+  });
+
   it("ignores an analysis result when input changes before it settles", async () => {
     const analyze = vi
       .fn<(text: string) => Promise<AnalyzeJdResult>>()
