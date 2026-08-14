@@ -24,6 +24,9 @@ const displayMessage = computed(() => {
 
   return props.feedback?.message ?? (props.status === "analyzing" ? "正在分析" : "");
 });
+const characterCountLabel = computed(
+  () => `${props.input.length.toLocaleString("zh-CN")} / ${MAX_JD_LENGTH.toLocaleString("zh-CN")}`,
+);
 const isAnalyzing = computed(() => props.status === "analyzing");
 const isFailed = computed(() => props.status === "failed");
 const isInvalid = computed(() => props.status === "invalid");
@@ -55,10 +58,7 @@ function requestReset(): void {
   >
     <div class="jd-input-panel__heading">
       <h2 id="jd-input-heading">粘贴招聘 JD</h2>
-      <span
-        >{{ input.length.toLocaleString("zh-CN") }} /
-        {{ MAX_JD_LENGTH.toLocaleString("zh-CN") }}</span
-      >
+      <span>{{ characterCountLabel }}</span>
     </div>
     <label for="jd-radar-input">招聘 JD 纯文本</label>
     <textarea
