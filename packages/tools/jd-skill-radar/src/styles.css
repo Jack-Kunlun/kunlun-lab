@@ -1,0 +1,233 @@
+.jd-radar {
+  overflow: hidden;
+  border: 1px solid var(--lab-border);
+  border-radius: 0.625rem;
+  background-color: var(--lab-bg);
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--lab-border) 18%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--lab-border) 18%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 1.5rem 1.5rem;
+  color: var(--lab-text);
+}
+
+.jd-radar__workspace {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.85fr) minmax(0, 1.45fr);
+  min-width: 0;
+}
+
+.jd-radar__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--lab-border);
+}
+
+.jd-radar__header h1,
+.jd-radar__header p {
+  margin-top: 0;
+}
+
+.jd-radar__header p:last-child {
+  margin-bottom: 0;
+}
+
+.jd-radar__eyebrow {
+  margin-bottom: 0.5rem;
+  color: var(--lab-experiment);
+  font-family: var(--lab-font-mono);
+}
+
+.jd-input-panel,
+.jd-radar__results {
+  min-width: 0;
+  padding: 1.25rem;
+}
+
+.jd-input-panel {
+  border-right: 1px solid var(--lab-border);
+  background: color-mix(in srgb, var(--lab-bg) 88%, transparent);
+}
+
+.jd-input-panel__heading,
+.jd-input-panel__actions,
+.jd-export-actions,
+.jd-keyword header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.jd-input-panel__heading {
+  justify-content: space-between;
+}
+
+.jd-input-panel__heading h2,
+.jd-input-panel > label,
+.jd-input-panel__privacy {
+  margin-top: 0;
+}
+
+.jd-input-panel__heading h2 {
+  margin-bottom: 0.75rem;
+}
+
+.jd-input-panel > label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.jd-input-panel textarea {
+  display: block;
+  width: 100%;
+  min-height: 18rem;
+  resize: vertical;
+  border: 1px solid var(--lab-border);
+  border-radius: 0.375rem;
+  background: var(--lab-bg);
+  color: var(--lab-text);
+  font-family: var(--lab-font-mono);
+  padding: 0.875rem;
+}
+
+.jd-input-panel__privacy,
+.jd-radar__disclaimer {
+  color: var(--lab-muted);
+}
+
+.jd-input-panel [aria-live="polite"] {
+  min-height: 1.6em;
+}
+
+.jd-button--secondary {
+  border-color: var(--lab-border);
+  background: var(--lab-surface);
+  color: var(--lab-text);
+}
+
+.jd-radar__results {
+  display: grid;
+  gap: 1rem;
+}
+
+.jd-radar__results [data-status="stale"] {
+  margin: 0;
+  border-left: 0.25rem solid var(--lab-experiment);
+  background: color-mix(in srgb, var(--lab-experiment) 10%, var(--lab-surface));
+  padding: 0.75rem 1rem;
+}
+
+.jd-module {
+  border-top: 1px solid var(--lab-border);
+  padding-top: 1rem;
+}
+
+.jd-module h2 {
+  margin-top: 0;
+}
+
+.jd-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+}
+
+.jd-score-row {
+  display: grid;
+  grid-template-columns: minmax(5rem, auto) minmax(6rem, 1fr) auto auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.jd-keyword {
+  border-left: 0.125rem solid var(--lab-accent);
+  background: color-mix(in srgb, var(--lab-surface) 82%, transparent);
+  padding: 0.875rem;
+}
+
+.jd-keyword header h3 {
+  margin: 0;
+}
+
+.jd-keyword__contexts {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 0;
+}
+
+.jd-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.jd-checklist-item input {
+  margin-top: 0.3rem;
+  accent-color: var(--lab-accent);
+}
+
+.jd-checklist-item a {
+  color: var(--lab-experiment);
+}
+
+.jd-radar__disclaimer {
+  margin: 0;
+  border-top: 1px solid var(--lab-border);
+  padding: 0.875rem 1.25rem;
+}
+
+.jd-radar--idle .jd-radar__workspace,
+.jd-radar--invalid .jd-radar__workspace,
+.jd-radar--failed .jd-radar__workspace {
+  grid-template-columns: minmax(0, 42rem);
+  justify-content: center;
+}
+
+.jd-radar__results,
+.jd-module,
+.jd-keyword,
+.jd-keyword__contexts,
+.jd-checklist-item {
+  min-width: 0;
+}
+
+.jd-keyword,
+.jd-keyword__contexts li,
+.jd-checklist-item,
+.jd-checklist-item a {
+  overflow-wrap: anywhere;
+}
+
+.jd-score-row meter {
+  width: 100%;
+  accent-color: var(--lab-accent);
+}
+
+@media (max-width: 899px) {
+  .jd-radar__workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .jd-radar__results {
+    border-top: 1px solid var(--lab-border);
+  }
+
+  .jd-input-panel {
+    border-right: 0;
+  }
+
+  .jd-score-row {
+    grid-template-columns: minmax(4.5rem, auto) minmax(5rem, 1fr) auto;
+  }
+
+  .jd-score-row span:last-child {
+    grid-column: 2 / -1;
+  }
+}
