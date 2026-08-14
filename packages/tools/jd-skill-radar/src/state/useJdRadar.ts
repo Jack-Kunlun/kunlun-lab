@@ -222,7 +222,14 @@ export function useJdRadar(options: UseJdRadarOptions = {}): JdRadarController {
     }
 
     try {
-      await downloadPort(toMarkdown(context.analysis, checkedIds.value), MARKDOWN_FILENAME);
+      const downloadResult = downloadPort(
+        toMarkdown(context.analysis, checkedIds.value),
+        MARKDOWN_FILENAME,
+      );
+
+      if (downloadResult !== undefined) {
+        await downloadResult;
+      }
 
       if (exportEpoch !== resetEpoch) {
         return;
