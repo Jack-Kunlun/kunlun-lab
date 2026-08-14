@@ -40,14 +40,15 @@ async function download(): Promise<void> {
 </script>
 
 <template>
-  <main
+  <section
     class="jd-radar"
+    aria-labelledby="jd-radar-title"
     :class="`jd-radar--${controller.status.value}`"
   >
     <header class="jd-radar__header">
       <div>
         <p class="jd-radar__eyebrow">WORKBENCH / JD-SKILL-RADAR</p>
-        <h1>前端岗位 JD 技能雷达</h1>
+        <h1 id="jd-radar-title">前端岗位 JD 技能雷达</h1>
         <p>把招聘文本整理为技能信号、语气强度与可执行的准备清单。</p>
       </div>
       <StatusBadge
@@ -94,7 +95,7 @@ async function download(): Promise<void> {
     <footer class="jd-radar__disclaimer">
       技能分值只表示当前 JD 文本的强调程度，不代表岗位质量、个人能力或面试结果。
     </footer>
-  </main>
+  </section>
 </template>
 
 <style src="../styles.css"></style>

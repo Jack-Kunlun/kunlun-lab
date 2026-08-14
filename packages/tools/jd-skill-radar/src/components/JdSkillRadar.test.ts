@@ -53,6 +53,10 @@ describe("JdSkillRadar", () => {
   it("starts idle with one labeled input and no results", () => {
     const wrapper = mount(JdSkillRadar);
 
+    expect(wrapper.html()).toMatch(/^<section class="jd-radar jd-radar--idle"/);
+    expect(wrapper.find("section.jd-radar").attributes("aria-labelledby")).toBe("jd-radar-title");
+    expect(wrapper.find("h1#jd-radar-title").exists()).toBe(true);
+    expect(wrapper.find("main").exists()).toBe(false);
     expect(wrapper.find("textarea").exists()).toBe(true);
     expect(wrapper.find("[data-results=true]").exists()).toBe(false);
     expect(wrapper.findAll("h1")).toHaveLength(1);
