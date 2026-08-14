@@ -25,9 +25,26 @@ describe("copyMarkdown", () => {
 
     await expect(copyMarkdown("# 分析结果")).rejects.toThrow("Clipboard API is unavailable.");
   });
+
+  it("propagates Clipboard API write failures", async () => {
+    const failure = new Error("clipboard blocked");
+    const writeText = vi.fn<(text: string) => Promise<void>>().mockRejectedValue(failure);
+
+    vi.stubGlobal("navigator", { clipboard: { writeText } });
+
+    await expect(copyMarkdown("# 分析结果")).rejects.toBe(failure);
+  });
 });
 
 describe("downloadMarkdown", () => {
+  it("throws when the Download API is unavailable", () => {
+    vi.stubGlobal("URL", {});
+
+    expect(() => {
+      downloadMarkdown("# 分析结果", "jd-skill-radar.md");
+    }).toThrow("Download API is unavailable.");
+  });
+
   it("downloads a Markdown Blob and always cleans the temporary URL", async () => {
     const createObjectURL = vi.fn<(blob: Blob) => string>().mockReturnValue("blob:jd-result");
     const revokeObjectURL = vi.fn<(url: string) => void>();
