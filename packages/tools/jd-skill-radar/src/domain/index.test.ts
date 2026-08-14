@@ -17,9 +17,9 @@ function acceptAnalysis(_analysis: JdAnalysis): void {
 }
 
 describe("JD radar package entry", () => {
-  it("exports the draft manifest and public analysis API together", () => {
+  it("exports the alpha manifest and public analysis API together", () => {
     expect(jdSkillRadarManifest.id).toBe("jd-skill-radar");
-    expect(jdSkillRadarManifest.status).toBe("draft");
+    expect(jdSkillRadarManifest.status).toBe("alpha");
     expect(SKILLS.length).toBeGreaterThan(0);
     expect(matchSkills("TypeScript")).toHaveLength(1);
     expect(detectTone("必须掌握")).toBe("required");

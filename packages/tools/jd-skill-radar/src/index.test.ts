@@ -40,8 +40,8 @@ describe("JD radar Task 9 package entry", () => {
     expect(typeof toMarkdown).toBe("function");
     expect(typeof copyMarkdown).toBe("function");
     expect(typeof downloadMarkdown).toBe("function");
-    expect(jdSkillRadarManifest.status).toBe("draft");
-    expect(jdSkillRadarManifest.capabilities).toEqual([]);
+    expect(jdSkillRadarManifest.status).toBe("alpha");
+    expect(jdSkillRadarManifest.capabilities).toEqual(["clipboard", "download"]);
     expect(analyze).not.toHaveBeenCalled();
 
     acceptController(controller);

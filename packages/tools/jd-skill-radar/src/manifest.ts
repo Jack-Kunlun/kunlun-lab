@@ -1,10 +1,10 @@
 import type { ToolManifest } from "@kunlun/shared";
 
 export const jdSkillRadarManifest: ToolManifest = {
-  capabilities: [],
-  component: () => import("./components/JdSkillRadarDraft.vue"),
+  capabilities: ["clipboard", "download"],
+  component: () => import("./components/JdSkillRadar.vue"),
   id: "jd-skill-radar",
   runtime: "client",
-  status: "draft",
+  status: "alpha",
   title: "前端岗位 JD 技能雷达",
 } satisfies ToolManifest;

@@ -6,25 +6,24 @@ import { describe, expect, it } from "vitest";
 import { jdSkillRadarManifest } from "./manifest.ts";
 
 describe("jdSkillRadarManifest", () => {
-  it("registers one truthful draft identity with no unavailable capabilities", () => {
+  it("registers one truthful alpha identity with local export capabilities", () => {
     const registry = createToolRegistry([jdSkillRadarManifest]);
 
     expect(registry.get("jd-skill-radar")).toMatchObject({
-      capabilities: [],
+      capabilities: ["clipboard", "download"],
       id: "jd-skill-radar",
       runtime: "client",
-      status: "draft",
+      status: "alpha",
       title: "前端岗位 JD 技能雷达",
     });
   });
 
-  it("loads a non-interactive construction notice instead of claiming analysis is ready", async () => {
+  it("lazily loads the interactive workbench", async () => {
     const loadedComponent = await jdSkillRadarManifest.component();
     const wrapper = mount(loadedComponent.default);
 
-    expect(wrapper.text()).toContain("工具仍在建设中");
-    expect(wrapper.text()).not.toContain("开始分析");
-    expect(wrapper.find("button").exists()).toBe(false);
-    expect(wrapper.find("textarea").exists()).toBe(false);
+    expect(wrapper.get("textarea").attributes("aria-describedby")).toBeDefined();
+    expect(wrapper.text()).toContain("开始分析");
+    expect(wrapper.text()).not.toContain("工具仍在建设中");
   });
 });
