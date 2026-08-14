@@ -65,7 +65,8 @@ const DOWNLOAD_FAILED: JdRadarFeedback = Object.freeze({
 export function useJdRadar(options: UseJdRadarOptions = {}): JdRadarController {
   const analyzePort = options.analyze ?? analyzeJd;
   const copyPort = options.copy ?? copyMarkdownAdapter;
-  const downloadPort = options.download ?? downloadMarkdownAdapter;
+  const downloadPort: (markdown: string, filename: string) => unknown =
+    options.download ?? downloadMarkdownAdapter;
   const input = ref("");
   const status = ref<JdRadarStatus>("idle");
   const analysis = shallowRef<JdAnalysis | null>(null);
@@ -222,14 +223,9 @@ export function useJdRadar(options: UseJdRadarOptions = {}): JdRadarController {
     }
 
     try {
-      const downloadResult = downloadPort(
-        toMarkdown(context.analysis, checkedIds.value),
-        MARKDOWN_FILENAME,
+      await Promise.resolve(
+        downloadPort(toMarkdown(context.analysis, checkedIds.value), MARKDOWN_FILENAME),
       );
-
-      if (downloadResult !== undefined) {
-        await downloadResult;
-      }
 
       if (exportEpoch !== resetEpoch) {
         return;
