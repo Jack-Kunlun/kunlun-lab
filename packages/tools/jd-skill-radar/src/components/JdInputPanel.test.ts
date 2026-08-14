@@ -27,6 +27,21 @@ describe("JdInputPanel", () => {
     expect(wrapper.text()).toContain("正在分析");
   });
 
+  it("associates the textarea with the character count and feedback", () => {
+    const wrapper = mount(JdInputPanel, {
+      props: { feedback: null, input: "Vue", status: "idle" },
+    });
+
+    const textarea = wrapper.get("textarea");
+    const characterCount = wrapper.get("#jd-radar-character-count");
+
+    expect(characterCount.text()).toBe("3 / 20,000");
+    expect(textarea.attributes("aria-describedby")).toBe(
+      "jd-radar-character-count jd-radar-feedback",
+    );
+    expect(wrapper.get("#jd-radar-feedback").attributes("id")).toBe("jd-radar-feedback");
+  });
+
   it("renders the no-skills explanation in one polite live region", () => {
     const wrapper = mount(JdInputPanel, {
       props: {

@@ -58,13 +58,13 @@ function requestReset(): void {
   >
     <div class="jd-input-panel__heading">
       <h2 id="jd-input-heading">粘贴招聘 JD</h2>
-      <span>{{ characterCountLabel }}</span>
+      <span id="jd-radar-character-count">{{ characterCountLabel }}</span>
     </div>
     <label for="jd-radar-input">招聘 JD 纯文本</label>
     <textarea
       id="jd-radar-input"
       :aria-invalid="isInvalid"
-      aria-describedby="jd-radar-feedback"
+      aria-describedby="jd-radar-character-count jd-radar-feedback"
       :value="input"
       @input="handleInput"
     />
