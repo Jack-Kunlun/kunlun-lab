@@ -2,8 +2,8 @@
 
 import type { ToolManifest } from "@kunlun/shared";
 import { flushPromises, mount } from "@vue/test-utils";
-import { defineComponent, h, nextTick } from "vue";
 import { describe, expect, it } from "vitest";
+import { defineComponent, h, nextTick } from "vue";
 import InternalToolRenderer from "../../components/InternalToolRenderer.client.vue";
 
 type ComponentLoader = ToolManifest["component"];
@@ -22,8 +22,8 @@ function createManifest(id: string, component: ComponentLoader): ToolManifest {
 function createLoadedComponent(text: string) {
   return defineComponent({
     name: `LoadedTool${text}`,
-    setup() {
-      return () => h("p", { "data-tool-output": true }, text);
+    render() {
+      return h("p", { "data-tool-output": true }, text);
     },
   });
 }
@@ -45,14 +45,14 @@ describe("InternalToolRenderer", () => {
     const manifest = createManifest("failing-tool", () => Promise.reject(new Error(rawError)));
     const wrapper = mount(InternalToolRenderer, { props: { manifest } });
 
-    expect(wrapper.get('[role="status"]').text()).toContain("工具正在加载");
+    expect(wrapper.get("[role=\"status\"]").text()).toContain("工具正在加载");
 
     await flushPromises();
 
     const viewport = wrapper.get("[data-tool-viewport]");
 
-    expect(viewport.get('[role="alert"]').text()).toContain("工具暂时无法运行");
-    expect(viewport.find('[data-test="retry"]').exists()).toBe(true);
+    expect(viewport.get("[role=\"alert\"]").text()).toContain("工具暂时无法运行");
+    expect(viewport.find("[data-test=\"retry\"]").exists()).toBe(true);
     expect(viewport.text()).not.toContain(rawError);
   });
 
@@ -61,19 +61,19 @@ describe("InternalToolRenderer", () => {
     const recoveredText = "恢复后的工具工作台";
     const rawError = "private loader failure";
     const recoveredComponent = createLoadedComponent(recoveredText);
-    const manifest = createManifest("retry-tool", async () => {
+    const manifest = createManifest("retry-tool", () => {
       attempts += 1;
 
       if (attempts === 1) {
-        throw new Error(rawError);
+        return Promise.reject(new Error(rawError));
       }
 
-      return { default: recoveredComponent };
+      return Promise.resolve({ default: recoveredComponent });
     });
     const wrapper = mount(InternalToolRenderer, { props: { manifest } });
 
     await flushPromises();
-    await wrapper.get('[data-test="retry"]').trigger("click");
+    await wrapper.get("[data-test=\"retry\"]").trigger("click");
     await flushPromises();
 
     expect(attempts).toBe(2);

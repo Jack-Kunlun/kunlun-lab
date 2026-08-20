@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { createError, useRoute, useSeoMeta } from "#imports";
-import { queryCollection, useAsyncData } from "#imports";
 import { computed } from "vue";
+import {
+  createError,
+  queryCollection,
+  useAsyncData,
+  useRoute,
+  useSeoMeta,
+} from "#imports";
 import InternalToolRenderer from "~/components/InternalToolRenderer.client.vue";
 import { useToolRegistry } from "~/composables/useToolRegistry";
 
@@ -26,8 +31,7 @@ const resolvedWork = work.value;
 if (
   workError.value ||
   !manifest ||
-  !resolvedWork ||
-  resolvedWork.type !== "tool" ||
+  resolvedWork?.type !== "tool" ||
   resolvedWork.toolId !== manifest.id
 ) {
   throw createError({
@@ -35,6 +39,7 @@ if (
     statusCode: 404,
   });
 }
+
 const workMeta = resolvedWork;
 
 useSeoMeta({
