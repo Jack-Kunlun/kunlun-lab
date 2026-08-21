@@ -12,6 +12,7 @@ interface ContentEntry {
   draft?: boolean;
   featured?: boolean;
   publishedAt?: string;
+  slug: string;
   status?: string;
   tags: string[];
   title: string;
@@ -66,6 +67,7 @@ function readCollection(collection: "articles" | "works"): ContentEntry[] {
         draft: fields.get("draft") === "true",
         featured: fields.get("featured") === "true",
         publishedAt: fields.get("publishedAt"),
+        slug: fileName.replace(/\.md$/u, ""),
         status: fields.get("status"),
         tags,
         title: fields.get("title") ?? fileName.replace(/\.md$/u, ""),
@@ -188,6 +190,27 @@ describe("content pages", () => {
     expect((await fetchRoute("/articles/category/Nuxt")).status).toBe(404);
   });
 
+  it("filters articles by a tag query and returns an empty result for an unknown tag", async () => {
+    const matchingTag = uniqueTags.at(0);
+
+    if (matchingTag === undefined) {
+      throw new Error("Expected at least one published article tag.");
+    }
+
+    const matchingArticles = [...publishedArticles]
+      .filter((article) => article.tags.includes(matchingTag))
+      .sort((left, right) => (right.publishedAt ?? "").localeCompare(left.publishedAt ?? ""));
+    const matching = await fetchHtml(`/articles?tag=${encodeURIComponent(matchingTag)}`);
+    const empty = await fetchHtml("/articles?tag=not-a-real-tag");
+
+    expect(matching.status).toBe(200);
+    expect(attributeValues(matching.html, "data-article-title")).toEqual(
+      matchingArticles.map((article) => article.title),
+    );
+    expect(empty.status).toBe(200);
+    expect(attributeValues(empty.html, "data-article-title")).toEqual([]);
+  });
+
   it("renders direct article content and returns 404 for an unknown slug", async () => {
     const articleSlug = "building-a-personal-lab";
     const article = await fetchHtml(`/articles/${articleSlug}`);
@@ -198,6 +221,24 @@ describe("content pages", () => {
     expect(article.html).toContain("构建个人主页与产品实验室");
     expect(article.html).toContain("Nuxt");
     expect(unknown.status).toBe(404);
+  });
+
+  it("renders a public work detail and 404s unknown and draft work slugs", async () => {
+    const publicWorkEntry = works.find((work) => work.slug === "interview-notes");
+
+    if (publicWorkEntry === undefined) {
+      throw new Error("Expected the published interview-notes work entry.");
+    }
+
+    const publicWork = await fetchHtml("/works/interview-notes");
+    const unknown = await fetchHtml("/works/not-a-real-work");
+    const draft = await fetchHtml("/works/jd-skill-radar");
+
+    expect(publicWork.status).toBe(200);
+    expect(publicWork.html).toContain(publicWorkEntry.title);
+    expect(publicWork.html).toContain("reading-surface");
+    expect(unknown.status).toBe(404);
+    expect(draft.status).toBe(404);
   });
 
   it("renders the supplied about content without inventing unavailable fields", async () => {
