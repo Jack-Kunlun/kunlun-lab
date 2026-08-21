@@ -120,6 +120,23 @@ test.describe("可访问结构", () => {
     await expect(page.locator("#jd-radar-feedback")).toHaveAttribute("aria-live", "polite");
   });
 
+  test("stale 状态转换后文案位于 live region", async ({ page }) => {
+    await page.goto("/tools/jd-skill-radar");
+    await expect(page.getByLabel("招聘 JD 纯文本")).toBeVisible();
+
+    await page.getByLabel("招聘 JD 纯文本").fill(VUE_JD);
+    await page.getByRole("button", { name: "开始分析" }).click();
+    await expect(page.locator("[data-results]")).toBeVisible();
+
+    await page.getByLabel("招聘 JD 纯文本").fill(`${VUE_JD}\n新增内容`);
+    const staleNotice = page.locator("[data-status]");
+
+    await expect(staleNotice).toBeVisible();
+    await expect(staleNotice).toHaveAttribute("role", "status");
+    await expect(staleNotice).toHaveAttribute("aria-live", "polite");
+    await expect(staleNotice).toHaveAttribute("aria-atomic", "true");
+  });
+
   test("表单控件具备可访问名称", async ({ page }) => {
     await page.goto("/tools/jd-skill-radar");
     await expect(page.getByLabel("招聘 JD 纯文本")).toBeVisible();

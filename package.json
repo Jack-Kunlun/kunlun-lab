@@ -18,7 +18,8 @@
     "test:e2e": "playwright test",
     "test:repository": "node --test tests/repository/eslint-config-package.test.ts scripts/validate-tools.test.ts tests/repository/version-policy.test.ts tests/repository/text-policy.test.ts",
     "test:unit": "pnpm run test:repository && turbo test",
-    "typecheck": "turbo typecheck && tsc --noEmit -p tsconfig.json",
+    "typecheck": "turbo typecheck && tsc --noEmit -p tsconfig.json && pnpm run typecheck:e2e",
+    "typecheck:e2e": "tsc --noEmit -p tests/e2e/tsconfig.json",
     "validate": "pnpm validate:versions && pnpm validate:text && pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
     "validate:text": "node scripts/verify-text-format.ts",
     "validate:versions": "node scripts/verify-versions.ts"

@@ -76,6 +76,9 @@ async function download(): Promise<void> {
         <p
           v-if="isStale"
           data-status="stale"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
         >
           输入已修改，当前结果已过期。重新分析后会替换旧结果。
         </p>
