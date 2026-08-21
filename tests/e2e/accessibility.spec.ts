@@ -50,11 +50,13 @@ test.describe("键盘可访问性", () => {
   test("skip link 可键盘聚焦并跳转到主内容", async ({ page }) => {
     await page.goto("/");
     const skipLink = page.locator("a.skip-link");
+    const mainContent = page.locator("#main-content");
 
     await page.keyboard.press("Tab");
     await expect(skipLink).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/#main-content$/);
+    await expect(mainContent).toBeFocused();
   });
 
   test("主导航链接可键盘聚焦并导航", async ({ page }) => {

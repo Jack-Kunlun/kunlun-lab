@@ -16,6 +16,7 @@ defineOptions({
     <main
       id="main-content"
       class="site-main"
+      tabindex="-1"
     >
       <slot />
     </main>
