@@ -7,8 +7,9 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "postinstall": "nuxt prepare",
-    "test": "pnpm run test:components && pnpm run test:ssr",
+    "test": "pnpm run test:components && pnpm run test:server && pnpm run test:ssr",
     "test:components": "vitest run --passWithNoTests tests/components",
+    "test:server": "vitest run tests/server",
     "test:ssr": "vitest run --config vitest.e2e.config.ts",
     "typecheck": "nuxt typecheck"
   },

@@ -28,6 +28,8 @@ export default defineNuxtConfig({
   },
   typescript: {
     strict: true,
-    typeCheck: true,
+    // 默认开启类型检查；生产镜像构建时通过 NUXT_TYPE_CHECK=false 关闭，
+    // 类型检查由本地/CI 的 `pnpm typecheck` 门禁独立负责。
+    typeCheck: process.env.NUXT_TYPE_CHECK !== "false",
   },
 });
