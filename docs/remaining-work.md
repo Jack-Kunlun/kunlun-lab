@@ -139,9 +139,14 @@
   - 草稿发布规则回归补充（2026-08-22，`test(content): 补充文章草稿深链回归`）：新增 `draft: true` 的文章夹具 `apps/web/content/articles/draft-deep-link-fixture.md`（标题「深链草稿回归夹具」，仅供测试），并在 `tests/e2e/content-deep-links.spec.ts` 补两项断言——「文章草稿不会进入公开索引」（`/articles` 内既无指向 `/articles/draft-deep-link-fixture` 的链接 href，也不显示草稿标题）与「文章草稿深链不会绕过发布规则」（直接访问 `/articles/draft-deep-link-fixture` 返回 404、展示统一「页面暂时无法访问」提示、不渲染草稿正文，刷新后仍为 404）。至此文章侧（本夹具）与作品侧（`/works/jd-skill-radar`）两类草稿的发布规则均有回归证据；若详情路由未来误删 draft 拦截，测试会失败。未改动任何现有公开内容状态、内容 schema 或路由实现，仅新增夹具与测试。
   - 本地验证（草稿回归）：`validate:text`、`prebuild`（内容校验通过，草稿夹具字段合法）、`typecheck:e2e` 通过；`apps/web` `test:ssr` 10/10 通过；Playwright（desktop）`content-deep-links.spec.ts`（11 项）+`work-links.spec.ts`（9 项）合计 20 项全部通过；新增夹具与测试文件 `prettier --check`、`eslint` 通过。
 
-- [ ] **状态：未开始｜技能词典回归** 为 JD Skill Radar 的技能词典、同义词匹配、分类和代表性岗位 fixture 建立持续回归覆盖。
+- [x] **状态：已完成｜技能词典回归** 为 JD Skill Radar 的技能词典、同义词匹配、分类和代表性岗位 fixture 建立持续回归覆盖。
 
   **验收条件：** 词典变更会触发固定 fixture 的回归测试；关键前端/Vue 技能词、同义词、未知词和分类结果都有稳定断言；现有 `packages/tools/jd-skill-radar` 单元测试与新增回归测试同时通过；测试失败能指出发生变化的技能或分类。
+
+  - 回归实现（2026-08-22，`test(jd-radar): 补充技能词典回归`）：新增 `packages/tools/jd-skill-radar/src/domain/skill-dictionary-regression.test.ts`（41 项），全部以硬编码业务预期为准、不从 `SKILLS` 动态生成 expected；采用 table-driven + 描述性用例名，失败信息带技能 ID / alias / category / fixture 定位。复用现有固定 fixture `fixtures/frontend-vue.ts`，未新增第二份 Vue JD，未新增 fixture 文件。
+  - 覆盖维度：（1）关键技能定义稳定性——对 javascript、typescript、vue、vue-router、pinia、css、vite、git、code-review 硬编码断言 `id`/`label`/`category`/关键 `alias`；（2）别名与同义写法匹配——14 个用例覆盖 TS/TypeScript、JS/JavaScript、Vue 3/Vue3/Vue.js、Vue Router/VueRouter、Node.js/NodeJS、Code Review/代码评审/代码审查，各断言匹配到明确 `skillId`；（3）未知词处理——含 Fortran/COBOL/Delphi/Haskell/Erlang（均已确认不在词典）的 JD 只识别 typescript、不生成伪造 skillId、不抛异常，且纯非技术文本返回 `NO_SKILLS`；（4）frontend-vue fixture 端到端——`analyzeJd` 识别固定 12 技能集合、无未知 skillId、typescript count=2/required 等关键词次数与语气、重复分析结果稳定；（5）分类回归——硬编码 id/category 对覆盖 language/framework/css/engineering/nodejs/collaboration 多个维度，并断言 fixture 分类得分/matchCount/排序与固定基线一致（framework 100/3、language 100/2、css 75/3、engineering 50/2、collaboration 50/2、nodejs 38/1）且分类仅由匹配技能产生。既有 `skill-dictionary.test.ts`（固定 ID 集合、ID/alias 唯一、label/checklistLabel 非空、无 noteUrl）等测试保留未改，未弱化。
+  - 未修改任何生产实现（词典、匹配、分析、评分、类型、UI、manifest 均未动），未新增技能/别名/依赖，未改锁文件，仅新增一个领域单元测试文件与本文档记录。
+  - 本地验证：新测试 `vitest run skill-dictionary-regression.test.ts` 41/41 通过；工具包完整 `pnpm --filter @kunlun/jd-skill-radar test` 20 文件 **156/156** 通过；`typecheck`（vue-tsc）通过；`validate:text` 通过；新测试文件 `prettier --check`、`eslint` 通过。
 
 ## 完成定义
 
