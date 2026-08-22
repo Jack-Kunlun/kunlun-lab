@@ -43,9 +43,13 @@
 
   **实现与验证：** 工具 registry 与 `/tools/[toolId]` 动态路由由 Task 11 实现（`apps/web/pages/tools/[toolId].vue` + 工具 registry 插件已就位）；相关 E2E/可访问性回归由 Task 13 补充，`pnpm test:e2e` 覆盖工具页渲染、刷新与未知 `toolId` 404（106 passed + 14 skipped）。
 
-- [ ] **状态：未开始｜发布元数据同步（前置已完成，待发布决定）** 在工具路由完成并做出发布决定后，同步 `apps/web/content/works/jd-skill-radar.md` 与 manifest 和实际入口的元数据。
+- [x] **发布元数据同步（暂不公开发布决定）** 在工具路由完成并做出发布决定后，同步 `apps/web/content/works/jd-skill-radar.md` 与 manifest 和实际入口的元数据。
 
   **验收条件：** `toolId`、启动入口、标题、描述、`status` 和 `updatedAt` 能准确表达实际可访问状态；若仍为 alpha 或 draft，原因和入口策略明确；`validate-content` 与 `validate-tools` 通过；未通过发布决定前不把作品标为已发布。
+
+  **发布决定与实现（2026-08-22）：** 本轮决定为“暂不公开发布”——保留 manifest `status: alpha` 与作品 `status: draft`，`featured` 保持 `false`，不添加 `appUrl`。直接入口为 [`/tools/jd-skill-radar`](../apps/web/pages/tools/%5BtoolId%5D.vue)，允许知道准确地址的用户直接访问 alpha 工具；`/works` 索引不展示该 draft 工具，`/works/jd-skill-radar` 作品详情仍不公开（返回 404）。作品元数据已同步：`title`（前端岗位 JD 技能雷达，与 manifest 一致）、`toolId`（jd-skill-radar，与 manifest id 一致）、`description`（浏览器本地的 JD 技能信号与准备清单）、`status: draft`、`updatedAt: 2026-08-22`；作品正文补充“当前发布策略”说明。
+
+  **实际运行结果（本地）：** `validate:text` 通过；`prebuild`（内容 + 工具注册校验）通过；`test:repository` 14 passed；`prettier --check`（作品 md + remaining-work.md）全绿；`pnpm --filter @kunlun/web test:ssr` 通过（`/tools/jd-skill-radar` 可直达、`/works` 不含 draft 工具、`/works/jd-skill-radar` 与未注册 toolId 均 404）；`playwright test work-links.spec.ts jd-radar.spec.ts --project=desktop` 通过；`pnpm build` 6/6 通过；`git diff --check` 无空白错误。
 
 ## P1：内容体验与用户质量门禁
 

@@ -47,6 +47,8 @@ pnpm dev
 - `/tools/[toolId]`（已注册工具渲染对应组件，未知 `toolId` 走明确的 not-found 分支）
 - `/api/health`（健康检查接口）
 
+> JD Skill Radar 目前为 alpha 工具：manifest `status: alpha`、作品记录 `status: draft`。它可通过 `/tools/jd-skill-radar` 直接访问，但不属于正式公开发布——不会进入 `/works` 索引，`/works/jd-skill-radar` 作品详情也不开放（返回 404）。
+
 ## 目录结构
 
 ```text
