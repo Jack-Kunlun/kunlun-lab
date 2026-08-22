@@ -130,9 +130,12 @@
 
 ## P3：内容深链与长期回归
 
-- [ ] **状态：未开始｜内容深链** 为公开文章、作品和相关内容链接提供可直接访问、可刷新、可分享的稳定路径。
+- [x] **状态：已完成｜内容深链** 为公开文章、作品和相关内容链接提供可直接访问、可刷新、可分享的稳定路径。
 
   **验收条件：** 从新浏览器直接打开每类公开内容的深链并刷新，结果与站内导航一致；关联内容链接可解析；草稿深链不会绕过发布规则；未知 slug 返回明确 404；Playwright 覆盖至少一条文章和一条作品深链。
+
+  - 回归补充（2026-08-22，`test(content): 完善公开内容深链回归`）：新增 `tests/e2e/content-deep-links.spec.ts`，覆盖文章深链 `/articles/building-a-personal-lab` 与作品深链 `/works/interview-notes` 的直接访问、刷新一致性；索引点击进入详情与直接访问结果一致；在新浏览器上下文重新打开分享 URL 结果一致（文章、作品各一条）；文章索引与作品索引内所有深链均返回 200（关联内容链接可解析）；未知文章 slug（`/articles/not-a-real-article`）与未知作品 slug 返回明确 404；草稿作品 `/works/jd-skill-radar` 仍返回 404（不绕过发布规则，既有 `tests/e2e/work-links.spec.ts` 覆盖）。路由实现（`apps/web/pages/articles/[...slug].vue`、`apps/web/pages/works/[...slug].vue`）经复核使用内容模型稳定 `path` 与统一 404 处理，SSR 与客户端一致，无需改动，本项仅补齐回归覆盖。
+  - 本地验证：`validate:text`、`prebuild`、`typecheck:e2e` 通过；`apps/web` `test:ssr` 10/10 通过；Playwright（desktop）`content-deep-links.spec.ts` 9/9 通过，`work-links.spec.ts`+`navigation.spec.ts` 18/18 通过（无回归）；新文件 `prettier --check` 与 `eslint` 通过。
 
 - [ ] **状态：未开始｜技能词典回归** 为 JD Skill Radar 的技能词典、同义词匹配、分类和代表性岗位 fixture 建立持续回归覆盖。
 
