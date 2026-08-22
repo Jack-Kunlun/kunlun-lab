@@ -54,8 +54,9 @@ test.describe("文章深链回归", () => {
     await expect(page.getByRole("heading", { name: draftArticleTitle })).toHaveCount(0);
     await expect(page.getByText(draftArticleBody)).toHaveCount(0);
 
-    await page.reload();
+    const reloadResponse = await page.reload();
 
+    expect(reloadResponse?.status()).toBe(404);
     await expect(page.getByText("页面暂时无法访问")).toBeVisible();
     await expect(page.getByText(draftArticleBody)).toHaveCount(0);
   });
