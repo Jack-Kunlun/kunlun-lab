@@ -136,6 +136,8 @@
 
   - 回归补充（2026-08-22，`test(content): 完善公开内容深链回归`）：新增 `tests/e2e/content-deep-links.spec.ts`，覆盖文章深链 `/articles/building-a-personal-lab` 与作品深链 `/works/interview-notes` 的直接访问、刷新一致性；索引点击进入详情与直接访问结果一致；在新浏览器上下文重新打开分享 URL 结果一致（文章、作品各一条）；文章索引与作品索引内所有深链均返回 200（关联内容链接可解析）；未知文章 slug（`/articles/not-a-real-article`）与未知作品 slug 返回明确 404；草稿作品 `/works/jd-skill-radar` 仍返回 404（不绕过发布规则，既有 `tests/e2e/work-links.spec.ts` 覆盖）。路由实现（`apps/web/pages/articles/[...slug].vue`、`apps/web/pages/works/[...slug].vue`）经复核使用内容模型稳定 `path` 与统一 404 处理，SSR 与客户端一致，无需改动，本项仅补齐回归覆盖。
   - 本地验证：`validate:text`、`prebuild`、`typecheck:e2e` 通过；`apps/web` `test:ssr` 10/10 通过；Playwright（desktop）`content-deep-links.spec.ts` 9/9 通过，`work-links.spec.ts`+`navigation.spec.ts` 18/18 通过（无回归）；新文件 `prettier --check` 与 `eslint` 通过。
+  - 草稿发布规则回归补充（2026-08-22，`test(content): 补充文章草稿深链回归`）：新增 `draft: true` 的文章夹具 `apps/web/content/articles/draft-deep-link-fixture.md`（标题「深链草稿回归夹具」，仅供测试），并在 `tests/e2e/content-deep-links.spec.ts` 补两项断言——「文章草稿不会进入公开索引」（`/articles` 内既无指向 `/articles/draft-deep-link-fixture` 的链接 href，也不显示草稿标题）与「文章草稿深链不会绕过发布规则」（直接访问 `/articles/draft-deep-link-fixture` 返回 404、展示统一「页面暂时无法访问」提示、不渲染草稿正文，刷新后仍为 404）。至此文章侧（本夹具）与作品侧（`/works/jd-skill-radar`）两类草稿的发布规则均有回归证据；若详情路由未来误删 draft 拦截，测试会失败。未改动任何现有公开内容状态、内容 schema 或路由实现，仅新增夹具与测试。
+  - 本地验证（草稿回归）：`validate:text`、`prebuild`（内容校验通过，草稿夹具字段合法）、`typecheck:e2e` 通过；`apps/web` `test:ssr` 10/10 通过；Playwright（desktop）`content-deep-links.spec.ts`（11 项）+`work-links.spec.ts`（9 项）合计 20 项全部通过；新增夹具与测试文件 `prettier --check`、`eslint` 通过。
 
 - [ ] **状态：未开始｜技能词典回归** 为 JD Skill Radar 的技能词典、同义词匹配、分类和代表性岗位 fixture 建立持续回归覆盖。
 

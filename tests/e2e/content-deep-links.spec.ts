@@ -2,6 +2,9 @@ import { expect, test } from "@playwright/test";
 
 const articleDeepLink = "/articles/building-a-personal-lab";
 const articleTitle = "构建个人主页与产品实验室";
+const draftArticleDeepLink = "/articles/draft-deep-link-fixture";
+const draftArticleTitle = "深链草稿回归夹具";
+const draftArticleBody = "此内容仅用于验证草稿文章不会进入公开索引或通过深链访问。";
 const workDeepLink = "/works/interview-notes";
 const workTitle = "前端面试知识库";
 
@@ -33,6 +36,28 @@ test.describe("文章深链回归", () => {
 
     expect(response?.status()).toBe(404);
     await expect(page.getByText("页面暂时无法访问")).toBeVisible();
+  });
+
+  test("文章草稿不会进入公开索引", async ({ page }) => {
+    await page.goto("/articles");
+
+    await expect(page.locator(`a[href="${draftArticleDeepLink}"]`)).toHaveCount(0);
+    await expect(page.locator(`a[href^="${draftArticleDeepLink}"]`)).toHaveCount(0);
+    await expect(page.getByText(draftArticleTitle)).toHaveCount(0);
+  });
+
+  test("文章草稿深链不会绕过发布规则", async ({ page }) => {
+    const response = await page.goto(draftArticleDeepLink);
+
+    expect(response?.status()).toBe(404);
+    await expect(page.getByText("页面暂时无法访问")).toBeVisible();
+    await expect(page.getByRole("heading", { name: draftArticleTitle })).toHaveCount(0);
+    await expect(page.getByText(draftArticleBody)).toHaveCount(0);
+
+    await page.reload();
+
+    await expect(page.getByText("页面暂时无法访问")).toBeVisible();
+    await expect(page.getByText(draftArticleBody)).toHaveCount(0);
   });
 });
 
