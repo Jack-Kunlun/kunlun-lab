@@ -1,4 +1,6 @@
 export default defineNuxtConfig({
+  compatibilityDate: "2026-08-22",
+  telemetry: false,
   srcDir: ".",
   modules: ["@nuxt/content"],
   css: ["@kunlun/ui/styles/tokens.css", "@kunlun/ui/styles/base.css", "~/assets/css/main.css"],
