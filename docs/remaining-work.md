@@ -27,7 +27,7 @@
 ## 当前基线
 
 - 已完成 monorepo、内容模型、UI 基础、`@kunlun/tool-kit`，以及 `@kunlun/jd-skill-radar` 包内 alpha（原计划 Task 1-10）。
-- `apps/web` 已接入工具 registry 插件与 `/tools/[toolId]` 动态路由，并实现内容集合（articles/works/pages）的索引与详情渲染（Task 13）。
+- `apps/web` 已接入工具 registry 插件与 `/tools/[toolId]` 动态路由（Task 11），并实现内容集合（articles/works/pages）的索引与详情渲染（Task 12）。
 - `jdSkillRadarManifest` 为 `client` runtime、`alpha` 状态，支持 `clipboard` 和 `download`；作品内容 [`apps/web/content/works/jd-skill-radar.md`](../apps/web/content/works/jd-skill-radar.md) 仍为 `draft`，尚未做出面向主站的发布决定。
 - JD 分析在浏览器本地完成，不上传输入；清单不引入服务端分析或数据存储目标。
 - 根目录已有 `dev`、`build`、`test`、`test:e2e`、`typecheck`、`lint`、`format:check`、`validate` 等脚本，且 `prebuild` 会执行内容与工具注册校验；`playwright.config.ts` 已就位，`pnpm test:e2e` 可运行 Chromium E2E（Task 13）。
@@ -37,11 +37,11 @@
 
 ## P0：工具主流程与发布前置
 
-- [x] **工具注册与 `/tools/[toolId]`（Task 13）** 将 `jdSkillRadarManifest` 接入 `apps/web` 的唯一工具 registry，并实现 `/tools/[toolId]` 动态路由；已注册工具加载对应 client component，未知 `toolId` 走明确的错误/404 分支。
+- [x] **工具注册与 `/tools/[toolId]`（Task 11）** 将 `jdSkillRadarManifest` 接入 `apps/web` 的唯一工具 registry，并实现 `/tools/[toolId]` 动态路由；已注册工具加载对应 client component，未知 `toolId` 走明确的错误/404 分支。
 
   **验收条件：** 直接打开 `/tools/jd-skill-radar` 能渲染 JD Skill Radar 的标题、输入区和结果壳；刷新和直接导航均可用；registry 校验通过；已注册工具的 `toolId` 与作品 frontmatter 关联一致；未注册工具不会渲染任意工具组件。
 
-  **实现与验证：** `apps/web/pages/tools/[toolId].vue` + 工具 registry 插件已就位；`pnpm test:e2e` 覆盖工具页渲染、刷新与未知 `toolId` 404（106 passed + 14 skipped）。
+  **实现与验证：** 工具 registry 与 `/tools/[toolId]` 动态路由由 Task 11 实现（`apps/web/pages/tools/[toolId].vue` + 工具 registry 插件已就位）；相关 E2E/可访问性回归由 Task 13 补充，`pnpm test:e2e` 覆盖工具页渲染、刷新与未知 `toolId` 404（106 passed + 14 skipped）。
 
 - [ ] **状态：未开始｜发布元数据同步（前置已完成，待发布决定）** 在工具路由完成并做出发布决定后，同步 `apps/web/content/works/jd-skill-radar.md` 与 manifest 和实际入口的元数据。
 
@@ -49,11 +49,11 @@
 
 ## P1：内容体验与用户质量门禁
 
-- [x] **内容集合、索引、详情与草稿规则（Task 13）** 为 `articles`、`pages`、`works` 建立明确的 collection query、索引页和详情页；写清文章 `draft` 与作品 `status: draft` 的生产环境可见性规则。
+- [x] **内容集合、索引、详情与草稿规则（Task 12）** 为 `articles`、`pages`、`works` 建立明确的 collection query、索引页和详情页；写清文章 `draft` 与作品 `status: draft` 的生产环境可见性规则。
 
   **验收条件：** 每个集合都有可访问的索引和详情路径；有效内容可从索引进入详情；生产环境不会把草稿内容当作公开内容；缺失或不应公开的内容返回明确结果；现有 schema 与内容校验继续通过。
 
-  **实现与验证：** 首页、`/articles`、`/works` 及其详情页已实现草稿过滤；`apps/web/tests/pages/content-pages.test.ts` 与 E2E 覆盖索引→详情、草稿不公开、未知 slug 404。
+  **实现与验证：** 页面与草稿规则由 Task 12 实现（首页、`/articles`、`/works` 及其详情页已实现草稿过滤，`apps/web/tests/pages/content-pages.test.ts` 覆盖索引→详情、草稿不公开、未知 slug 404）；浏览器 E2E 回归由 Task 13 补充。
 
 - [x] **Playwright 配置（Task 13）** 添加可运行的 Playwright 配置、浏览器项目、基础 server 启动方式和测试产物目录规则，不把脚本存在误认为 E2E 已可用。
 
