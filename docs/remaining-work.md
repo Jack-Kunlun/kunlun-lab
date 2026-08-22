@@ -28,7 +28,7 @@
 
 - 已完成 monorepo、内容模型、UI 基础、`@kunlun/tool-kit`，以及 `@kunlun/jd-skill-radar` 包内 alpha（原计划 Task 1-10）。
 - `apps/web` 已接入工具 registry 插件与 `/tools/[toolId]` 动态路由（Task 11），并实现内容集合（articles/works/pages）的索引与详情渲染（Task 12）。
-- `jdSkillRadarManifest` 为 `client` runtime、`alpha` 状态，支持 `clipboard` 和 `download`；作品内容 [`apps/web/content/works/jd-skill-radar.md`](../apps/web/content/works/jd-skill-radar.md) 仍为 `draft`，尚未做出面向主站的发布决定。
+- `jdSkillRadarManifest` 为 `client` runtime、`alpha` 状态，支持 `clipboard` 和 `download`；作品内容 [`apps/web/content/works/jd-skill-radar.md`](../apps/web/content/works/jd-skill-radar.md) 仍为 `draft`。已决定暂不公开发布：继续保持 manifest `alpha`、work `draft`、`featured: false`，不配置 `appUrl`；仅保留 `/tools/jd-skill-radar` 直接访问入口，不进入 `/works` 公开列表，且 `/works/jd-skill-radar` 继续保持 404。
 - JD 分析在浏览器本地完成，不上传输入；清单不引入服务端分析或数据存储目标。
 - 根目录已有 `dev`、`build`、`test`、`test:e2e`、`typecheck`、`lint`、`format:check`、`validate` 等脚本，且 `prebuild` 会执行内容与工具注册校验；`playwright.config.ts` 已就位，`pnpm test:e2e` 可运行 Chromium E2E（Task 13）。
 - 已提供 `apps/web/server/api/health.get.ts`（`/api/health`）、`Dockerfile`（非 root 用户 UID 1001）、`compose.yaml`、`pnpm test:docker` 冒烟脚本（Task 14）。
