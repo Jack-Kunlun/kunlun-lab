@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import { resolvePrimaryWorkAction, resolveSecondaryWorkActions } from "@kunlun/shared";
 import type { WorkMeta } from "@kunlun/shared";
 import { StatusBadge } from "@kunlun/ui";
+import { computed } from "vue";
 
 interface WorkEntry extends WorkMeta {
   path: string;

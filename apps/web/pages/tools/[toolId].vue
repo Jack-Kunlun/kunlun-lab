@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import {
-  createError,
-  queryCollection,
-  useAsyncData,
-  useRoute,
-  useSeoMeta,
-} from "#imports";
+import { createError, queryCollection, useAsyncData, useRoute, useSeoMeta } from "#imports";
 import InternalToolRenderer from "~/components/InternalToolRenderer.client.vue";
 import { useToolRegistry } from "~/composables/useToolRegistry";
 
@@ -21,9 +15,8 @@ const toolId = computed(() => {
   return typeof routeToolId === "string" ? routeToolId : (routeToolId?.[0] ?? "");
 });
 const toolRegistry = useToolRegistry();
-const { data: work, error: workError } = await useAsyncData(
-  `internal-tool:${toolId.value}`,
-  () => queryCollection("works").where("toolId", "=", toolId.value).first(),
+const { data: work, error: workError } = await useAsyncData(`internal-tool:${toolId.value}`, () =>
+  queryCollection("works").where("toolId", "=", toolId.value).first(),
 );
 const manifest = toolRegistry.get(toolId.value);
 const resolvedWork = work.value;

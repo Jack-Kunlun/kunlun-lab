@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import {
-  createError,
-  queryCollection,
-  useAsyncData,
-  useRoute,
-  useSeoMeta,
-} from "#imports";
 import { resolvePrimaryWorkAction, resolveSecondaryWorkActions } from "@kunlun/shared";
 import type { WorkMeta } from "@kunlun/shared";
 import { StatusBadge } from "@kunlun/ui";
+import { computed } from "vue";
+import { createError, queryCollection, useAsyncData, useRoute, useSeoMeta } from "#imports";
 
 defineOptions({
   name: "WorkDetailPage",

@@ -14,9 +14,7 @@ const route = useRoute();
 const { data: articles } = await useAsyncData("articles:index", () =>
   queryCollection("articles").where("draft", "=", false).all(),
 );
-const publicArticles = computed(() =>
-  (articles.value ?? []).filter((article) => article.draft !== true),
-);
+const publicArticles = computed(() => (articles.value ?? []).filter((article) => !article.draft));
 const selectedTag = computed(() =>
   typeof route.query.tag === "string" ? route.query.tag : undefined,
 );

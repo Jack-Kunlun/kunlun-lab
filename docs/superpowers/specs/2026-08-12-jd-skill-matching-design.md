@@ -67,17 +67,17 @@ Task 8 可以使用 `skillId` 关联 `SKILLS`，按 `RawSkillMatch` 数量统计
 
 首版只覆盖已经确认的常见前端信号：
 
-| 类别 | 技能 |
-| --- | --- |
-| language | JavaScript、TypeScript、HTML、CSS、Sass |
-| css | Tailwind CSS |
-| framework | Vue、Vue Router、Pinia、React、Next.js、Angular |
-| engineering | Vite、Webpack、Rollup、测试、组件化 |
-| performance | Web 性能优化 |
-| nodejs | Node.js、Express |
-| cross-platform | Electron、React Native、UniApp |
-| devops | Docker、CI/CD |
-| collaboration | Git、Code Review、敏捷协作 |
+| 类别           | 技能                                            |
+| -------------- | ----------------------------------------------- |
+| language       | JavaScript、TypeScript、HTML、CSS、Sass         |
+| css            | Tailwind CSS                                    |
+| framework      | Vue、Vue Router、Pinia、React、Next.js、Angular |
+| engineering    | Vite、Webpack、Rollup、测试、组件化             |
+| performance    | Web 性能优化                                    |
+| nodejs         | Node.js、Express                                |
+| cross-platform | Electron、React Native、UniApp                  |
+| devops         | Docker、CI/CD                                   |
+| collaboration  | Git、Code Review、敏捷协作                      |
 
 每个技能拥有稳定的 kebab-case ID、中文或官方展示名、有限别名和准备清单文案。别名必须明确列出；不进行拼写纠错、词干推导、相似度匹配或技术关系推断。
 

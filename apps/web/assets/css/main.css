@@ -243,9 +243,7 @@ a {
   justify-content: space-between;
   gap: 2rem;
   min-height: min(32rem, 62vh);
-  background:
-    linear-gradient(135deg, rgb(139 255 176 / 12%), transparent 48%),
-    rgb(19 25 34 / 92%);
+  background: linear-gradient(135deg, rgb(139 255 176 / 12%), transparent 48%), rgb(19 25 34 / 92%);
 }
 
 .home-hero__copy {
@@ -303,9 +301,7 @@ a {
   align-items: end;
   justify-content: space-between;
   gap: 2rem;
-  background:
-    linear-gradient(90deg, rgb(171 156 255 / 10%), transparent 70%),
-    var(--lab-surface);
+  background: linear-gradient(90deg, rgb(171 156 255 / 10%), transparent 70%), var(--lab-surface);
 }
 
 .current-build__copy {

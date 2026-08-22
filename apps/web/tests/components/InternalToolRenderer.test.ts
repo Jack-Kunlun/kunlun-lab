@@ -8,6 +8,11 @@ import InternalToolRenderer from "../../components/InternalToolRenderer.client.v
 
 type ComponentLoader = ToolManifest["component"];
 
+const quote = String.fromCharCode(34);
+const statusSelector = `[role=${quote}status${quote}]`;
+const alertSelector = `[role=${quote}alert${quote}]`;
+const retrySelector = `[data-test=${quote}retry${quote}]`;
+
 function createManifest(id: string, component: ComponentLoader): ToolManifest {
   return {
     capabilities: [],
@@ -45,14 +50,14 @@ describe("InternalToolRenderer", () => {
     const manifest = createManifest("failing-tool", () => Promise.reject(new Error(rawError)));
     const wrapper = mount(InternalToolRenderer, { props: { manifest } });
 
-    expect(wrapper.get("[role=\"status\"]").text()).toContain("工具正在加载");
+    expect(wrapper.get(statusSelector).text()).toContain("工具正在加载");
 
     await flushPromises();
 
     const viewport = wrapper.get("[data-tool-viewport]");
 
-    expect(viewport.get("[role=\"alert\"]").text()).toContain("工具暂时无法运行");
-    expect(viewport.find("[data-test=\"retry\"]").exists()).toBe(true);
+    expect(viewport.get(alertSelector).text()).toContain("工具暂时无法运行");
+    expect(viewport.find(retrySelector).exists()).toBe(true);
     expect(viewport.text()).not.toContain(rawError);
   });
 
@@ -73,7 +78,7 @@ describe("InternalToolRenderer", () => {
     const wrapper = mount(InternalToolRenderer, { props: { manifest } });
 
     await flushPromises();
-    await wrapper.get("[data-test=\"retry\"]").trigger("click");
+    await wrapper.get(retrySelector).trigger("click");
     await flushPromises();
 
     expect(attempts).toBe(2);

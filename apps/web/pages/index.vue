@@ -14,18 +14,12 @@ useSeoMeta({
 });
 
 const [{ data: works }, { data: articles }] = await Promise.all([
-  useAsyncData("home:works", () =>
-    queryCollection("works").where("status", "<>", "draft").all(),
-  ),
-  useAsyncData("home:articles", () =>
-    queryCollection("articles").where("draft", "=", false).all(),
-  ),
+  useAsyncData("home:works", () => queryCollection("works").where("status", "<>", "draft").all()),
+  useAsyncData("home:articles", () => queryCollection("articles").where("draft", "=", false).all()),
 ]);
 
 const publicWorks = computed(() => (works.value ?? []).filter((work) => work.status !== "draft"));
-const publicArticles = computed(() =>
-  (articles.value ?? []).filter((article) => article.draft !== true),
-);
+const publicArticles = computed(() => (articles.value ?? []).filter((article) => !article.draft));
 const featuredWorks = computed(() => publicWorks.value.filter((work) => work.featured).slice(0, 3));
 const recentArticles = computed(() =>
   [...publicArticles.value]

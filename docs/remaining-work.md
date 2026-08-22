@@ -27,66 +27,89 @@
 ## 当前基线
 
 - 已完成 monorepo、内容模型、UI 基础、`@kunlun/tool-kit`，以及 `@kunlun/jd-skill-radar` 包内 alpha（原计划 Task 1-10）。
-- `apps/web` 仍是静态壳；当前没有主站工具注册插件、`/tools/[toolId]` 路由、内容集合索引与详情渲染。
-- `jdSkillRadarManifest` 为 `client` runtime、`alpha` 状态，支持 `clipboard` 和 `download`；作品内容 [`apps/web/content/works/jd-skill-radar.md`](../apps/web/content/works/jd-skill-radar.md) 仍为 `draft`。
+- `apps/web` 已接入工具 registry 插件与 `/tools/[toolId]` 动态路由，并实现内容集合（articles/works/pages）的索引与详情渲染（Task 13）。
+- `jdSkillRadarManifest` 为 `client` runtime、`alpha` 状态，支持 `clipboard` 和 `download`；作品内容 [`apps/web/content/works/jd-skill-radar.md`](../apps/web/content/works/jd-skill-radar.md) 仍为 `draft`，尚未做出面向主站的发布决定。
 - JD 分析在浏览器本地完成，不上传输入；清单不引入服务端分析或数据存储目标。
-- 根目录已有 `dev`、`build`、`test`、`test:e2e`、`typecheck`、`lint`、`format:check`、`validate` 等脚本，且 `prebuild` 会执行内容与工具注册校验；`test:e2e` 当前没有 Playwright 配置。
-- 当前没有 `/api/health`、Docker Compose、非 root 容器、CI、Dependabot 自动合并限制或完整发布门禁。
-- 当前没有已核实的进行中条目；未勾选项目均表示未完成，不表示已经接近完成。
+- 根目录已有 `dev`、`build`、`test`、`test:e2e`、`typecheck`、`lint`、`format:check`、`validate` 等脚本，且 `prebuild` 会执行内容与工具注册校验；`playwright.config.ts` 已就位，`pnpm test:e2e` 可运行 Chromium E2E（Task 13）。
+- 已提供 `apps/web/server/api/health.get.ts`（`/api/health`）、`Dockerfile`（非 root 用户 UID 1001）、`compose.yaml`、`pnpm test:docker` 冒烟脚本（Task 14）。
+- 已提供 `.github/workflows/ci.yml`（PR/main 门禁）、`.github/dependabot.yml`（禁止自动合并）与 `tests/repository/ci-policy.test.ts` 策略回归（Task 15）；CI 工作流已提交但尚未在托管 Runner 上实际运行验证，本地门禁结果见对应条目记录。
+- 未勾选项目均表示未完成，不表示已经接近完成；条目状态以下方各优先级组的实际记录为准。
 
 ## P0：工具主流程与发布前置
 
-- [ ] **状态：未开始｜工具注册与 `/tools/[toolId]`** 将 `jdSkillRadarManifest` 接入 `apps/web` 的唯一工具 registry，并实现 `/tools/[toolId]` 动态路由；已注册工具加载对应 client component，未知 `toolId` 走明确的错误/404 分支。
+- [x] **工具注册与 `/tools/[toolId]`（Task 13）** 将 `jdSkillRadarManifest` 接入 `apps/web` 的唯一工具 registry，并实现 `/tools/[toolId]` 动态路由；已注册工具加载对应 client component，未知 `toolId` 走明确的错误/404 分支。
 
   **验收条件：** 直接打开 `/tools/jd-skill-radar` 能渲染 JD Skill Radar 的标题、输入区和结果壳；刷新和直接导航均可用；registry 校验通过；已注册工具的 `toolId` 与作品 frontmatter 关联一致；未注册工具不会渲染任意工具组件。
 
-- [ ] **状态：未开始｜发布元数据同步（依赖上一条）** 在工具路由完成并做出发布决定后，同步 `apps/web/content/works/jd-skill-radar.md` 与 manifest 和实际入口的元数据。
+  **实现与验证：** `apps/web/pages/tools/[toolId].vue` + 工具 registry 插件已就位；`pnpm test:e2e` 覆盖工具页渲染、刷新与未知 `toolId` 404（106 passed + 14 skipped）。
+
+- [ ] **状态：未开始｜发布元数据同步（前置已完成，待发布决定）** 在工具路由完成并做出发布决定后，同步 `apps/web/content/works/jd-skill-radar.md` 与 manifest 和实际入口的元数据。
 
   **验收条件：** `toolId`、启动入口、标题、描述、`status` 和 `updatedAt` 能准确表达实际可访问状态；若仍为 alpha 或 draft，原因和入口策略明确；`validate-content` 与 `validate-tools` 通过；未通过发布决定前不把作品标为已发布。
 
 ## P1：内容体验与用户质量门禁
 
-- [ ] **状态：未开始｜内容集合、索引、详情与草稿规则** 为 `articles`、`pages`、`works` 建立明确的 collection query、索引页和详情页；写清文章 `draft` 与作品 `status: draft` 的生产环境可见性规则。
+- [x] **内容集合、索引、详情与草稿规则（Task 13）** 为 `articles`、`pages`、`works` 建立明确的 collection query、索引页和详情页；写清文章 `draft` 与作品 `status: draft` 的生产环境可见性规则。
 
   **验收条件：** 每个集合都有可访问的索引和详情路径；有效内容可从索引进入详情；生产环境不会把草稿内容当作公开内容；缺失或不应公开的内容返回明确结果；现有 schema 与内容校验继续通过。
 
-- [ ] **状态：未开始｜Playwright 配置** 添加可运行的 Playwright 配置、浏览器项目、基础 server 启动方式和测试产物目录规则，不把脚本存在误认为 E2E 已可用。
+  **实现与验证：** 首页、`/articles`、`/works` 及其详情页已实现草稿过滤；`apps/web/tests/pages/content-pages.test.ts` 与 E2E 覆盖索引→详情、草稿不公开、未知 slug 404。
+
+- [x] **Playwright 配置（Task 13）** 添加可运行的 Playwright 配置、浏览器项目、基础 server 启动方式和测试产物目录规则，不把脚本存在误认为 E2E 已可用。
 
   **验收条件：** 在干净依赖环境中，`pnpm test:e2e` 能发现并执行至少一条浏览器测试；配置包含明确的 base URL、启动命令、超时和失败产物策略；生成的报告目录不进入源码提交。
 
-- [ ] **状态：未开始｜导航流程测试** 覆盖首页、关于、文章索引、作品索引及其公开详情之间的主要导航和浏览器刷新。
+  **实现与验证：** `playwright.config.ts` 已就位（base URL、webServer、超时、`snapshotPathTemplate`、报告目录）；`pnpm test:e2e` 106 passed + 14 skipped；`playwright-report/`、`test-results/` 已在忽略列表。
+
+- [x] **导航流程测试（Task 13）** 覆盖首页、关于、文章索引、作品索引及其公开详情之间的主要导航和浏览器刷新。
 
   **验收条件：** Playwright 测试从首页出发验证主导航目标、当前页面可辨识状态、返回路径和直接刷新；公开内容链接不落到未实现页面；失败时能定位到具体路由。
 
-- [ ] **状态：未开始｜工具流程测试** 覆盖 `/tools/jd-skill-radar` 的输入、分析、结果展示，以及可用的复制和下载反馈；同时确认 JD 输入保持浏览器本地处理。
+  **实现与验证：** E2E 导航 spec 覆盖主导航、当前页状态、刷新与公开链接可达（含 skip link 键盘焦点回归）。
+
+- [x] **工具流程测试（Task 13）** 覆盖 `/tools/jd-skill-radar` 的输入、分析、结果展示，以及可用的复制和下载反馈；同时确认 JD 输入保持浏览器本地处理。
 
   **验收条件：** 测试使用固定 fixture 完成一次分析并断言岗位概览、技能分布或准备清单等结果；复制/下载成功或失败都有可观察反馈；测试期间没有向外部服务发送 JD 输入。
 
-- [ ] **状态：未开始｜响应式测试** 为主站内容页和 JD 工具页定义桌面与窄屏视口，并覆盖主要布局断点。
+  **实现与验证：** E2E 工具 spec 使用固定 JD fixture 完成分析并断言结果区，复制/下载反馈可观察，含 stale 状态 live region 回归；JD 处理保持浏览器本地。
+
+- [x] **响应式测试（Task 13）** 为主站内容页和 JD 工具页定义桌面与窄屏视口，并覆盖主要布局断点。
 
   **验收条件：** 预设桌面和移动视口下页面无水平溢出、核心操作可见且可操作、导航和工具结果没有被截断；测试视口与断言写入 Playwright 配置或测试文件。
 
-- [ ] **状态：未开始｜Axe 可访问性测试** 将 `@axe-core/playwright` 接入关键页面和工具流程，在明确范围内执行自动化可访问性检查。
+  **实现与验证：** Playwright 项目定义桌面与窄屏视口，响应式 spec 断言无水平溢出与核心操作可见。
+
+- [x] **Axe 可访问性测试（Task 13）** 将 `@axe-core/playwright` 接入关键页面和工具流程，在明确范围内执行自动化可访问性检查。
 
   **验收条件：** 首页、内容详情、工具页至少各有一条 Axe 检查；严重级别和检查范围明确；阻断级别问题会使 CI 失败，已知例外必须有代码位置和原因记录。
 
-- [ ] **状态：未开始｜未知工具 404** 为 `/tools/<unknown-tool-id>` 建立稳定的 404 行为和回退体验。
+  **实现与验证：** `@axe-core/playwright` 接入首页、内容详情与工具页，阻断级别问题会使 E2E 失败（在 CI `e2e` job 内执行）。
+
+- [x] **未知工具 404（Task 13）** 为 `/tools/<unknown-tool-id>` 建立稳定的 404 行为和回退体验。
 
   **验收条件：** 访问未知 `toolId` 返回 HTTP 404 或框架等价的 not-found 状态；页面不加载已注册工具组件；用户可以回到作品或首页；Playwright 有对应回归测试。
 
+  **实现与验证：** `/tools/[toolId].vue` 对未注册 `toolId` 走 not-found 分支，不加载任意工具组件；E2E 覆盖未知工具 404 回归。
+
 ## P2：运行与交付控制
 
-- [ ] **状态：未开始｜`/api/health`** 提供最小健康检查接口，区分应用可响应与依赖异常，并定义稳定的 JSON 响应结构。
+- [x] **`/api/health`（Task 14）** 提供最小健康检查接口，区分应用可响应与依赖异常，并定义稳定的 JSON 响应结构。
 
   **验收条件：** 健康时接口返回 HTTP 200、`application/json` 和文档化的成功状态；检查失败时返回非成功状态；响应不包含密钥、用户输入或内部敏感路径；至少有接口级测试或等价自动化验证。
 
-- [ ] **状态：未开始｜Docker Compose** 提供可重复构建和启动 Web 服务的 Docker Compose 配置，并记录端口、环境变量和健康检查用法。
+  **实现与验证：** `apps/web/server/api/health.get.ts` 返回 `{ status: "ok" }`（200、`application/json`）；`apps/web/tests/server/health.test.ts` 覆盖成功响应；`pnpm test:docker` 冒烟确认 `/api/health status=ok`。
+
+- [x] **Docker Compose（Task 14）** 提供可重复构建和启动 Web 服务的 Docker Compose 配置，并记录端口、环境变量和健康检查用法。
 
   **验收条件：** 在项目根目录按文档命令可以完成镜像构建、启动和停止；容器能提供主站与健康接口；服务不依赖把源码目录以可写方式挂入容器；生成物和密钥不被提交。
 
-- [ ] **状态：未开始｜非 root 容器** 让生产运行容器使用明确的非 root 用户运行。
+  **实现与验证：** `compose.yaml` + `Dockerfile` 多阶段构建（`turbo prune --docker`），无源码可写挂载；`pnpm test:docker` 构建启动后校验 homepage=200 与 `/api/health`，`docker compose ps` 无残留；README 记录端口/环境变量/健康检查用法。
+
+- [x] **非 root 容器（Task 14）** 让生产运行容器使用明确的非 root 用户运行。
 
   **验收条件：** 容器内进程的有效 UID 不为 0；应用所需目录权限经过最小化配置；以非 root 用户启动不会因为写缓存或读取构建产物失败；构建检查记录该 UID 证据。
+
+  **实现与验证：** `Dockerfile` 以 `nodejs`（UID 1001）非 root 用户运行入口 `node apps/web/.output/server/index.mjs`；`pnpm test:docker` 记录 `container UID=1001` 且服务正常响应。
 
 - [x] **CI、Dependabot 禁止自动合并与发布门禁** 建立 PR/main CI，明确 Dependabot 更新不得自动合并，并把验证结果接入发布前门禁。
 
@@ -97,8 +120,9 @@
   - `.github/workflows/ci.yml`：`pull_request` 与 `push` 到 `main` 触发，`permissions: contents: read`；三个 job `quality` / `e2e` / `docker`，`e2e` 与 `docker` 均 `needs: quality`；所有 job 用 `.node-version` 解析 Node、Corepack 激活 `pnpm@11.21.0`、`pnpm install --frozen-lockfile`。`quality` 依次执行 `validate:versions`、`validate:text`、`format:check`、`lint`、`typecheck`、`test`、`build`；`e2e` 执行 `playwright install --with-deps chromium` 后 `pnpm test:e2e`；`docker` 执行 `pnpm test:docker`。
   - `.github/dependabot.yml`：每周更新 npm 与 github-actions，`open-pull-requests-limit: 5`，重大版本升级单独开 PR；无 auto-merge / automerge / auto-approve / `pull_request_target`。
   - `tests/repository/ci-policy.test.ts`：以 `yaml` 解析工作流与 Dependabot 配置做结构化断言（node-version-file、frozen-lockfile、三门禁与依赖关系、禁止自动合并、Dependabot weekly 与生态系统），并接入 `pnpm test`（`test:ci-policy`）。
-  - 实际运行结果：`vitest run tests/repository/ci-policy.test.ts` 18 passed；`validate:versions`、`validate:text`、`format:check`（本任务文件）、`typecheck`、`test`（10/10）、`build`（6/6）均通过；`test:e2e` 106 passed + 14 skipped（视觉基线仅桌面）；`test:docker` 通过（`/api/health status=ok, homepage=200, container UID=1001`），`docker compose ps` 无残留。
-  - 范围外既有失败（非本任务引入）：`pnpm lint` 仍有 13 个既有错误，集中在 `apps/web/components/WorkCard.vue`、`apps/web/pages/index.vue`、`apps/web/pages/articles/index.vue`、`apps/web/pages/works/[...slug].vue`、`apps/web/tests/pages/content-pages.test.ts`；`pnpm format:check` 另有既有未格式化文件。这些未在本任务修改，需在对应内容/页面任务中单独处理。
+  - 本地实际运行结果（macOS，Node `.node-version`）：`vitest run tests/repository/ci-policy.test.ts` 18 passed；`validate:versions`、`validate:text`、`format:check`（全仓库）、`lint`（全仓库）、`typecheck`、`test`、`build` 均通过；`test:e2e` 106 passed + 14 skipped（视觉基线仅桌面）；`test:docker` 通过（`/api/health status=ok, homepage=200, container UID=1001`），`docker compose ps` 无残留。
+  - 发布门禁验收补充（2026-08-22，`fix(ci): 修复发布门禁验收问题`）：清理了此前 P1/P2 遗留的 `pnpm lint` 13 个错误与 `pnpm format:check` 未格式化文件（仅 import/order、boolean 比较、`RegExp#exec`、空行、引号等机械修复与 Prettier 格式化，未改动组件渲染、路由、数据处理或测试断言），使全仓库 `lint` 与 `format:check` 门禁在本地一次性通过。
+  - 待验证项：`ci.yml` 三门禁仅在本地按同等命令逐条执行通过，尚未在 GitHub 托管 Runner 上实际触发运行；托管环境的首次 CI 结果需在后续 PR 中确认。
 
 ## P3：内容深链与长期回归
 

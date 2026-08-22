@@ -3,9 +3,9 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { fetch as fetchRoute, setup } from "@nuxt/test-utils/e2e";
 import type { WorkMeta } from "@kunlun/shared";
 import { resolvePrimaryWorkAction, resolveSecondaryWorkActions } from "@kunlun/shared";
+import { fetch as fetchRoute, setup } from "@nuxt/test-utils/e2e";
 import { describe, expect, it } from "vitest";
 
 interface ContentEntry {
@@ -34,20 +34,20 @@ function readCollection(collection: "articles" | "works"): ContentEntry[] {
     .filter((fileName) => fileName.endsWith(".md"))
     .map((fileName) => {
       const source = readFileSync(path.join(contentRoot, collection, fileName), "utf8");
-      const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---/u)?.[1] ?? "";
+      const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/u.exec(source)?.[1] ?? "";
       const fields = new Map<string, string>();
       const tags: string[] = [];
       let readingTags = false;
 
       for (const line of frontmatter.split(/\r?\n/u)) {
-        const tagMatch = line.match(/^\s+-\s+(.+)$/u);
+        const tagMatch = /^\s+-\s+(.+)$/u.exec(line);
 
         if (readingTags && tagMatch?.[1] !== undefined) {
           tags.push(tagMatch[1].trim());
           continue;
         }
 
-        const fieldMatch = line.match(/^([A-Za-z]+):\s*(.*)$/u);
+        const fieldMatch = /^([A-Za-z]+):\s*(.*)$/u.exec(line);
 
         if (!fieldMatch) {
           readingTags = false;
@@ -56,6 +56,7 @@ function readCollection(collection: "articles" | "works"): ContentEntry[] {
 
         const key = fieldMatch[1];
         const value = fieldMatch[2];
+
         readingTags = key === "tags";
 
         if (!readingTags && key !== undefined && value !== undefined) {
@@ -99,17 +100,19 @@ function extractSection(html: string, section: string): string {
 }
 
 function attributeValues(html: string, attribute: string): string[] {
-  return [...html.matchAll(new RegExp(`${attribute}="([^"]+)"`, "gu"))].flatMap(
-    ([, value]) => (value === undefined ? [] : [value]),
+  return [...html.matchAll(new RegExp(`${attribute}="([^"]+)"`, "gu"))].flatMap(([, value]) =>
+    value === undefined ? [] : [value],
   );
 }
 
 function metricValue(html: string, metric: string): string {
-  const match = html.match(
-    new RegExp(`data-metric="${metric}"[\\s\\S]*?data-metric-value="([^"]+)"`, "u"),
-  );
+  const match = new RegExp(
+    `data-metric="${metric}"[\\s\\S]*?data-metric-value="([^"]+)"`,
+    "u",
+  ).exec(html);
 
   expect(match).not.toBeNull();
+
   return match?.[1] ?? "";
 }
 
@@ -253,8 +256,10 @@ describe("content pages", () => {
 
   it("keeps work actions inside the shared resolver policy", async () => {
     const worksPage = await fetchHtml("/works");
+    const quote = String.fromCharCode(34);
+    const expectedHref = `href=${quote}https://www.kunlunmarket.work/${quote}`;
 
-    expect(worksPage.html).toContain('href="https://www.kunlunmarket.work/"');
+    expect(worksPage.html).toContain(expectedHref);
     expect(worksPage.html).not.toContain("查看源码");
     expect(
       resolvePrimaryWorkAction(makeWork({ status: "alpha", toolId: "jd-skill-radar" }))?.href,

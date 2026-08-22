@@ -67,12 +67,12 @@ export interface JdInputError {
 
 错误文案使用稳定中文文本：
 
-| code | message |
-| --- | --- |
-| `EMPTY` | `请粘贴一份前端岗位 JD。` |
-| `TOO_SHORT` | `JD 内容过短，请提供更完整的岗位描述。` |
-| `TOO_LONG` | `JD 内容超过 20,000 个字符，请缩短后重试。` |
-| `NO_SKILLS` | `没有识别到当前词典支持的前端技能。` |
+| code        | message                                     |
+| ----------- | ------------------------------------------- |
+| `EMPTY`     | `请粘贴一份前端岗位 JD。`                   |
+| `TOO_SHORT` | `JD 内容过短，请提供更完整的岗位描述。`     |
+| `TOO_LONG`  | `JD 内容超过 20,000 个字符，请缩短后重试。` |
+| `NO_SKILLS` | `没有识别到当前词典支持的前端技能。`        |
 
 ### 分析结果
 
@@ -118,9 +118,7 @@ export interface JdAnalysis {
   };
 }
 
-export type AnalyzeJdResult =
-  | { ok: true; value: JdAnalysis }
-  | { ok: false; error: JdInputError };
+export type AnalyzeJdResult = { ok: true; value: JdAnalysis } | { ok: false; error: JdInputError };
 ```
 
 公共入口：
@@ -319,4 +317,3 @@ Task 9 直接消费 `JdAnalysis`：
 - 在导出中保留“分值仅表示当前 JD 文本强调程度”的说明；
 - 不重新匹配原文、不重新评分、不重新抽取概览；
 - 不导出完整原始 JD 正文。
-
