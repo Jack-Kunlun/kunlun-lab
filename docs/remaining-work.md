@@ -88,9 +88,17 @@
 
   **验收条件：** 容器内进程的有效 UID 不为 0；应用所需目录权限经过最小化配置；以非 root 用户启动不会因为写缓存或读取构建产物失败；构建检查记录该 UID 证据。
 
-- [ ] **状态：未开始｜CI、Dependabot 禁止自动合并与发布门禁** 建立 PR/main CI，明确 Dependabot 更新不得自动合并，并把验证结果接入发布前门禁。
+- [x] **CI、Dependabot 禁止自动合并与发布门禁** 建立 PR/main CI，明确 Dependabot 更新不得自动合并，并把验证结果接入发布前门禁。
 
   **验收条件：** CI 使用仓库锁定的 Node.js 与 `pnpm` 版本并执行现有 `pnpm validate`、生产构建和已建立的 E2E/Axe 检查；任一必需检查失败都会阻断合并或发布；Dependabot 配置和仓库设置均不启用自动合并；发布门禁明确区分 `validate`、build、E2E、健康检查和容器检查，不能只把 `validate` 当作完整门禁。
+
+  **实现与验证（2026-08-22，分支 `codex/task-15-ci-release-gates`）：**
+
+  - `.github/workflows/ci.yml`：`pull_request` 与 `push` 到 `main` 触发，`permissions: contents: read`；三个 job `quality` / `e2e` / `docker`，`e2e` 与 `docker` 均 `needs: quality`；所有 job 用 `.node-version` 解析 Node、Corepack 激活 `pnpm@11.21.0`、`pnpm install --frozen-lockfile`。`quality` 依次执行 `validate:versions`、`validate:text`、`format:check`、`lint`、`typecheck`、`test`、`build`；`e2e` 执行 `playwright install --with-deps chromium` 后 `pnpm test:e2e`；`docker` 执行 `pnpm test:docker`。
+  - `.github/dependabot.yml`：每周更新 npm 与 github-actions，`open-pull-requests-limit: 5`，重大版本升级单独开 PR；无 auto-merge / automerge / auto-approve / `pull_request_target`。
+  - `tests/repository/ci-policy.test.ts`：以 `yaml` 解析工作流与 Dependabot 配置做结构化断言（node-version-file、frozen-lockfile、三门禁与依赖关系、禁止自动合并、Dependabot weekly 与生态系统），并接入 `pnpm test`（`test:ci-policy`）。
+  - 实际运行结果：`vitest run tests/repository/ci-policy.test.ts` 18 passed；`validate:versions`、`validate:text`、`format:check`（本任务文件）、`typecheck`、`test`（10/10）、`build`（6/6）均通过；`test:e2e` 106 passed + 14 skipped（视觉基线仅桌面）；`test:docker` 通过（`/api/health status=ok, homepage=200, container UID=1001`），`docker compose ps` 无残留。
+  - 范围外既有失败（非本任务引入）：`pnpm lint` 仍有 13 个既有错误，集中在 `apps/web/components/WorkCard.vue`、`apps/web/pages/index.vue`、`apps/web/pages/articles/index.vue`、`apps/web/pages/works/[...slug].vue`、`apps/web/tests/pages/content-pages.test.ts`；`pnpm format:check` 另有既有未格式化文件。这些未在本任务修改，需在对应内容/页面任务中单独处理。
 
 ## P3：内容深链与长期回归
 
