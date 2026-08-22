@@ -3,16 +3,17 @@ import { expect, test } from "@playwright/test";
 const NAV_ITEMS = [
   { label: "首页", href: "/", title: "首页 · Kunlun Lab" },
   { label: "作品", href: "/works", title: "作品 · Kunlun Lab" },
+  { label: "工具", href: "/tools", title: "工具 · Kunlun Lab" },
   { label: "文章", href: "/articles", title: "文章 · Kunlun Lab" },
   { label: "关于", href: "/about", title: "关于 · Kunlun Lab" },
 ] as const;
 
 test.describe("主导航", () => {
-  test("只暴露首页/作品/文章/关于四项导航，不出现实验室", async ({ page }) => {
+  test("只暴露首页/作品/工具/文章/关于五项导航，不出现实验室", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "主导航" });
 
-    await expect(nav.getByRole("link")).toHaveText(["首页", "作品", "文章", "关于"]);
+    await expect(nav.getByRole("link")).toHaveText(["首页", "作品", "工具", "文章", "关于"]);
     await expect(nav.getByRole("link", { name: "实验室" })).toHaveCount(0);
   });
 
@@ -25,13 +26,26 @@ test.describe("主导航", () => {
     await expect(activeLink).toHaveClass(/router-link-exact-active/);
   });
 
-  test("首页可以导航到作品、文章与关于", async ({ page }) => {
+  test("工具中心导航项具备可辨识的 active 状态", async ({ page }) => {
+    await page.goto("/tools");
+    const activeLink = page
+      .getByRole("navigation", { name: "主导航" })
+      .getByRole("link", { name: "工具" });
+
+    await expect(activeLink).toHaveClass(/router-link-exact-active/);
+  });
+
+  test("首页可以导航到作品、工具、文章与关于", async ({ page }) => {
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "主导航" });
 
     await nav.getByRole("link", { name: "作品" }).click();
     await expect(page).toHaveURL(/\/works$/);
     await expect(page).toHaveTitle("作品 · Kunlun Lab");
+
+    await nav.getByRole("link", { name: "工具" }).click();
+    await expect(page).toHaveURL(/\/tools$/);
+    await expect(page).toHaveTitle("工具 · Kunlun Lab");
 
     await nav.getByRole("link", { name: "文章" }).click();
     await expect(page).toHaveURL(/\/articles$/);

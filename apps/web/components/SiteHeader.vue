@@ -2,6 +2,7 @@
 const navigationItems = [
   { label: "首页", to: "/" },
   { label: "作品", to: "/works" },
+  { label: "工具", to: "/tools" },
   { label: "文章", to: "/articles" },
   { label: "关于", to: "/about" },
 ] as const;
