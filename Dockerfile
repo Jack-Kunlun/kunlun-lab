@@ -23,6 +23,8 @@ COPY --from=installer /app/node_modules/ ./node_modules/
 # turbo prune 的 out/full 保留根 tsconfig.json 但不追踪其 extends 的 tsconfig.base.json，
 # Vite/oxc 转换源码时需向上加载该基础配置，故显式补入。
 COPY --from=pruner /app/tsconfig.base.json ./tsconfig.base.json
+# turbo prune 不会因 app lifecycle 脚本推断根 scripts/，显式带入 app prebuild 使用的校验脚本。
+COPY --from=pruner /app/scripts/ ./scripts/
 RUN pnpm --filter @kunlun/web build
 
 # ---- runner：仅保留生产运行产物，非 root 运行 ----

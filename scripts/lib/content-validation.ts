@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { lstatSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { parse } from "yaml";
 import { articleSchema, pageSchema, workSchema } from "../../apps/web/content.schema.ts";
@@ -16,18 +16,45 @@ export interface ContentValidationIssue {
   message: string;
 }
 
-function listMarkdownFiles(directory: string): string[] {
-  return readdirSync(directory, { withFileTypes: true })
-    .flatMap((entry) => {
-      const entryPath = path.join(directory, entry.name);
+export interface ContentValidationOptions {
+  allowDrafts?: boolean;
+}
 
-      if (entry.isDirectory()) {
-        return listMarkdownFiles(entryPath);
+interface ContentDirectoryEntries {
+  markdownFiles: string[];
+  symbolicLinks: string[];
+}
+
+const symbolicLinkMessage = "内容目录禁止符号链接；请使用真实文件或目录。";
+const symbolicLinkRootMessage = "内容校验根目录禁止符号链接；请使用真实目录。";
+
+function listMarkdownFiles(directory: string): ContentDirectoryEntries {
+  const markdownFiles: string[] = [];
+  const symbolicLinks: string[] = [];
+
+  function visit(currentDirectory: string): void {
+    for (const entry of readdirSync(currentDirectory, { withFileTypes: true })) {
+      const entryPath = path.join(currentDirectory, entry.name);
+
+      if (entry.isSymbolicLink()) {
+        symbolicLinks.push(entryPath);
+        continue;
       }
 
-      return entry.isFile() && path.extname(entry.name).toLowerCase() === ".md" ? [entryPath] : [];
-    })
-    .sort((left, right) => left.localeCompare(right));
+      if (entry.isDirectory()) {
+        visit(entryPath);
+        continue;
+      }
+
+      if (entry.isFile() && path.extname(entry.name).toLowerCase() === ".md") {
+        markdownFiles.push(entryPath);
+      }
+    }
+  }
+
+  visit(directory);
+
+  return { markdownFiles, symbolicLinks };
 }
 
 function extractFrontmatter(content: string): string | undefined {
@@ -48,7 +75,11 @@ function isCollectionName(value: string): value is CollectionName {
   return Object.hasOwn(collectionSchemas, value);
 }
 
-function validateContentFile(contentDirectory: string, filePath: string): ContentValidationIssue[] {
+function validateContentFile(
+  contentDirectory: string,
+  filePath: string,
+  { allowDrafts = false }: ContentValidationOptions,
+): ContentValidationIssue[] {
   const relativePath = normalizeRelativePath(contentDirectory, filePath);
   const [collectionName] = relativePath.split("/");
 
@@ -66,9 +97,39 @@ function validateContentFile(contentDirectory: string, filePath: string): Conten
     const frontmatter: unknown = parse(frontmatterSource);
     const result = collectionSchemas[collectionName].safeParse(frontmatter);
 
-    return result.success
-      ? []
-      : result.error.issues.map(({ message }) => ({ filePath: relativePath, message }));
+    if (!result.success) {
+      return result.error.issues.map(({ message }) => ({ filePath: relativePath, message }));
+    }
+
+    if (
+      !allowDrafts &&
+      collectionName === "articles" &&
+      "draft" in result.data &&
+      result.data.draft
+    ) {
+      return [
+        {
+          filePath: relativePath,
+          message: "公开文章不能是草稿；请将草稿移至 apps/web/content-drafts/ 或测试夹具目录。",
+        },
+      ];
+    }
+
+    if (
+      !allowDrafts &&
+      collectionName === "works" &&
+      "status" in result.data &&
+      result.data.status === "draft"
+    ) {
+      return [
+        {
+          filePath: relativePath,
+          message: "公开作品不能是 draft；请将草稿移至 apps/web/content-drafts/ 或测试夹具目录。",
+        },
+      ];
+    }
+
+    return [];
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
 
@@ -76,8 +137,27 @@ function validateContentFile(contentDirectory: string, filePath: string): Conten
   }
 }
 
-export function validateContentDirectory(contentDirectory: string): ContentValidationIssue[] {
-  return listMarkdownFiles(contentDirectory).flatMap((filePath) =>
-    validateContentFile(contentDirectory, filePath),
+export function validateContentDirectory(
+  contentDirectory: string,
+  options: ContentValidationOptions = {},
+): ContentValidationIssue[] {
+  const rootDirectory = path.resolve(contentDirectory);
+
+  if (lstatSync(rootDirectory).isSymbolicLink()) {
+    return [{ filePath: ".", message: symbolicLinkRootMessage }];
+  }
+
+  const { markdownFiles, symbolicLinks } = listMarkdownFiles(rootDirectory);
+  const issues = [
+    ...symbolicLinks.map((filePath) => ({
+      filePath: normalizeRelativePath(rootDirectory, filePath),
+      message: symbolicLinkMessage,
+    })),
+    ...markdownFiles.flatMap((filePath) => validateContentFile(rootDirectory, filePath, options)),
+  ];
+
+  return issues.sort(
+    (left, right) =>
+      left.filePath.localeCompare(right.filePath) || left.message.localeCompare(right.message),
   );
 }
