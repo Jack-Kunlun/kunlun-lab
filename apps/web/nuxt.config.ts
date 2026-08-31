@@ -1,9 +1,27 @@
+const securityHeaders = {
+  "Content-Security-Policy": "base-uri 'self'; object-src 'none'; frame-ancestors 'none'",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
+  "X-Content-Type-Options": "nosniff",
+  "X-Frame-Options": "DENY",
+} as const;
+
 export default defineNuxtConfig({
   compatibilityDate: "2026-08-22",
   telemetry: false,
   srcDir: ".",
   modules: ["@nuxt/content"],
   css: ["@kunlun/ui/styles/tokens.css", "@kunlun/ui/styles/base.css", "~/assets/css/main.css"],
+  routeRules: {
+    "/**": {
+      headers: securityHeaders,
+    },
+    "/api/health": {
+      headers: {
+        "Cache-Control": "no-store",
+        ...securityHeaders,
+      },
+    },
+  },
   app: {
     head: {
       htmlAttrs: {

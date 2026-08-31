@@ -184,16 +184,26 @@ describe("continuous integration workflow policy", () => {
       "pnpm typecheck",
       "pnpm test",
       "pnpm build",
+      "pnpm test:content-boundary:build",
+      "pnpm test:content-boundary:server",
     ]) {
       expect(runs).toContain(command);
     }
   });
 
   it("runs the full Playwright suite in the e2e job", () => {
-    const runs = collectRunSteps(getJob(jobs, "e2e")).join("\n");
+    const e2eJob = getJob(jobs, "e2e");
+    const runs = collectRunSteps(e2eJob).join("\n");
 
     expect(runs).toMatch(/playwright install --with-deps chromium/);
     expect(runs).toContain("pnpm test:e2e");
+
+    const e2eStep = (e2eJob.steps as unknown[]).find(
+      (step) => isRecord(step) && step.run === "pnpm test:e2e",
+    );
+
+    expect(isRecord(e2eStep)).toBe(true);
+    expect(asRecord(asRecord(e2eStep).env).E2E_PORT).toBe("43117");
   });
 
   it("runs the shared cross-platform docker smoke entry", () => {

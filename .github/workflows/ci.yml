@@ -59,6 +59,12 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Verify app build content gate
+        run: pnpm test:content-boundary:build
+
+      - name: Verify production content boundary
+        run: pnpm test:content-boundary:server
+
   e2e:
     name: E2E and accessibility
     needs: quality
@@ -86,6 +92,8 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run Playwright suite
+        env:
+          E2E_PORT: "43117"
         run: pnpm test:e2e
 
       - name: Upload Playwright report

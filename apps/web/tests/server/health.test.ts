@@ -4,7 +4,7 @@ import type { H3Event } from "h3";
 import { describe, expect, it } from "vitest";
 import healthHandler from "../../server/api/health.get";
 
-describe("GET /api/health", () => {
+describe("GET /api/health HTTP/process liveness", () => {
   it("returns exactly { status: ok }", () => {
     const response = healthHandler({} as H3Event);
 
