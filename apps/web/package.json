@@ -20,7 +20,7 @@
     "@kunlun/tool-kit": "workspace:*",
     "@kunlun/ui": "workspace:*",
     "@nuxt/content": "3.15.2",
-    "better-sqlite3": "12.5.0",
+    "better-sqlite3": "13.0.3",
     "nuxt": "4.5.2",
     "vue": "3.5.41",
     "zod": "4.4.3"
