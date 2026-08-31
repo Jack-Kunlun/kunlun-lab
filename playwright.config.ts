@@ -34,7 +34,7 @@ export default defineConfig({
   outputDir: "test-results",
   snapshotDir: "./tests/e2e/__screenshots__",
   snapshotPathTemplate:
-    "{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{ext}",
+    "{snapshotDir}/{testFileDir}/{testFileName}-snapshots/{arg}{-projectName}{-platform}{ext}",
   expect: {
     timeout: 20_000,
   },

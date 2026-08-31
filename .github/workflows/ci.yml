@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - codex/capture-linux-baselines
 
 # 默认最小权限；各 job 仅读取仓库内容。
 permissions:
@@ -91,6 +92,60 @@ jobs:
       - name: Install Chromium for Playwright
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Record hosted capture provenance
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/codex/capture-linux-baselines' }}
+        run: |
+          echo "git revision:"
+          git rev-parse HEAD
+          echo "kernel:"
+          uname -a
+          echo "OS:"
+          cat /etc/os-release
+          echo "node:"
+          node --version
+          echo "pnpm:"
+          pnpm --version
+          echo "playwright:"
+          pnpm exec playwright --version
+          echo "playwright installations:"
+          pnpm exec playwright install --list
+
+      - name: Capture hosted Linux visual baselines
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/codex/capture-linux-baselines' }}
+        env:
+          E2E_PORT: "43118"
+        run: pnpm exec playwright test tests/e2e/visual.spec.ts --project=desktop --update-snapshots
+
+      - name: Verify hosted Linux baseline set
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/codex/capture-linux-baselines' }}
+        run: |
+          set -euo pipefail
+          snapshot_dir="tests/e2e/__screenshots__/visual.spec.ts-snapshots"
+          expected=(
+            "$snapshot_dir/article-detail-desktop-linux.png"
+            "$snapshot_dir/home-desktop-linux.png"
+            "$snapshot_dir/jd-radar-idle-desktop-linux.png"
+            "$snapshot_dir/jd-radar-ready-desktop-linux.png"
+            "$snapshot_dir/jd-radar-stale-desktop-linux.png"
+            "$snapshot_dir/tools-index-desktop-linux.png"
+          )
+          mapfile -t actual < <(find "$snapshot_dir" -maxdepth 1 -type f -name '*-linux.png' -print | sort)
+          if (( ${#actual[@]} != 6 )); then
+            echo "Expected exactly 6 Linux visual baselines, found ${#actual[@]}."
+            printf '%s\n' "${actual[@]}"
+            exit 1
+          fi
+          expected_sorted=$(printf '%s\n' "${expected[@]}" | sort)
+          actual_sorted=$(printf '%s\n' "${actual[@]}")
+          if [[ "$actual_sorted" != "$expected_sorted" ]]; then
+            echo "Linux visual baseline set does not match expected files."
+            echo "Expected:"
+            printf '%s\n' "$expected_sorted"
+            echo "Actual:"
+            printf '%s\n' "$actual_sorted"
+            exit 1
+          fi
+
       - name: Run Playwright suite
         env:
           E2E_PORT: "43117"
@@ -105,6 +160,15 @@ jobs:
             playwright-report
             test-results
           if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload hosted Linux visual baselines
+        if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/codex/capture-linux-baselines' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-visual-baselines-${{ github.run_id }}
+          path: tests/e2e/__screenshots__/visual.spec.ts-snapshots/*-linux.png
+          if-no-files-found: error
           retention-days: 7
 
   docker:
