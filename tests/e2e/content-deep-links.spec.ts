@@ -8,6 +8,9 @@ const draftArticleBody = "此内容仅用于验证草稿文章不会进入公开
 const workDeepLink = "/works/interview-notes";
 const workTitle = "前端面试知识库";
 
+// The article fixture is isolated from the production content source; these checks cover the
+// private path's defense-in-depth behavior, while production exclusion is covered by the P0 gate.
+
 test.describe("文章深链回归", () => {
   test("直接访问文章深链返回 200 且刷新后保持一致", async ({ page }) => {
     const response = await page.goto(articleDeepLink);
@@ -38,7 +41,7 @@ test.describe("文章深链回归", () => {
     await expect(page.getByText("页面暂时无法访问")).toBeVisible();
   });
 
-  test("文章草稿不会进入公开索引", async ({ page }) => {
+  test("私有文章夹具不会出现在公开索引", async ({ page }) => {
     await page.goto("/articles");
 
     await expect(page.locator(`a[href="${draftArticleDeepLink}"]`)).toHaveCount(0);
@@ -46,7 +49,7 @@ test.describe("文章深链回归", () => {
     await expect(page.getByText(draftArticleTitle)).toHaveCount(0);
   });
 
-  test("文章草稿深链不会绕过发布规则", async ({ page }) => {
+  test("私有文章路径保持 404（防御性回归）", async ({ page }) => {
     const response = await page.goto(draftArticleDeepLink);
 
     expect(response?.status()).toBe(404);

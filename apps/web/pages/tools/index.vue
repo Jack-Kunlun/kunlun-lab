@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ToolManifest } from "@kunlun/shared";
+import type { PublicToolManifest } from "@kunlun/tool-kit";
 import { StatusBadge } from "@kunlun/ui";
 import { computed } from "vue";
-import { queryCollection, useAsyncData, useSeoMeta } from "#imports";
+import { useSeoMeta } from "#imports";
 import { useToolRegistry } from "~/composables/useToolRegistry";
 
 defineOptions({
@@ -14,39 +14,22 @@ useSeoMeta({
 });
 
 const toolRegistry = useToolRegistry();
-const { data: toolWorks } = await useAsyncData("tools:index", () =>
-  queryCollection("works").where("type", "=", "tool").all(),
-);
 
-const statusLabels: Record<ToolManifest["status"], string> = {
+const statusLabels: Record<PublicToolManifest["status"], string> = {
   alpha: "Alpha",
   beta: "Beta",
-  draft: "Draft",
   maintained: "持续维护",
 };
-const statusTones: Record<ToolManifest["status"], "experiment" | "neutral" | "online"> = {
+const statusTones: Record<PublicToolManifest["status"], "experiment" | "neutral" | "online"> = {
   alpha: "experiment",
   beta: "experiment",
-  draft: "neutral",
   maintained: "online",
 };
-const runtimeLabels: Record<ToolManifest["runtime"], string> = {
+const runtimeLabels: Record<PublicToolManifest["runtime"], string> = {
   client: "client / 浏览器本地",
 };
 
-const tools = computed(() => {
-  const worksByToolId = new Map(
-    (toolWorks.value ?? [])
-      .filter((work) => work.type === "tool" && work.toolId && work.description)
-      .map((work) => [work.toolId, work] as const),
-  );
-
-  return Array.from(toolRegistry.values()).flatMap((manifest) => {
-    const work = worksByToolId.get(manifest.id);
-
-    return work ? [{ description: work.description, manifest }] : [];
-  });
-});
+const tools = computed(() => Array.from(toolRegistry.values()));
 </script>
 
 <template>
@@ -62,25 +45,25 @@ const tools = computed(() => {
     >
       <article
         v-for="tool in tools"
-        :key="tool.manifest.id"
+        :key="tool.id"
         class="work-card"
-        :data-tool-card="tool.manifest.id"
+        :data-tool-card="tool.id"
       >
         <header class="work-card__header">
           <div class="work-card__meta">
-            <span>{{ runtimeLabels[tool.manifest.runtime] }}</span>
+            <span>{{ runtimeLabels[tool.runtime] }}</span>
             <StatusBadge
-              :label="statusLabels[tool.manifest.status]"
-              :tone="statusTones[tool.manifest.status]"
+              :label="statusLabels[tool.status]"
+              :tone="statusTones[tool.status]"
             />
           </div>
-          <h2>{{ tool.manifest.title }}</h2>
+          <h2>{{ tool.title }}</h2>
           <p>{{ tool.description }}</p>
         </header>
         <div class="work-card__actions">
           <NuxtLink
             class="lab-action lab-action--primary"
-            :to="`/tools/${tool.manifest.id}`"
+            :to="`/tools/${tool.id}`"
           >
             打开工具
           </NuxtLink>

@@ -11,6 +11,7 @@ describe("jdSkillRadarManifest", () => {
 
     expect(registry.get("jd-skill-radar")).toMatchObject({
       capabilities: ["clipboard", "download"],
+      description: "在浏览器本地把一份前端招聘 JD 整理为可核对的技能信号与准备清单。",
       id: "jd-skill-radar",
       runtime: "client",
       status: "alpha",

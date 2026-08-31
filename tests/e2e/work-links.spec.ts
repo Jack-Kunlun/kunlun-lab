@@ -16,14 +16,14 @@ test.describe("作品索引链接", () => {
     await expect(page.getByRole("link", { name: "查看源码" })).toHaveCount(0);
   });
 
-  test("draft 作品不进入作品索引", async ({ page }) => {
+  test("未发布作品案例不出现在公开索引（防御性回归）", async ({ page }) => {
     await page.goto("/works");
 
     await expect(page.getByText("前端岗位 JD 技能雷达")).toHaveCount(0);
   });
 });
 
-test.describe("作品详情与发布规则", () => {
+test.describe("作品详情与未发布路径", () => {
   test("已发布作品详情可直接访问并刷新", async ({ page }) => {
     const response = await page.goto("/works/interview-notes");
 
@@ -40,15 +40,18 @@ test.describe("作品详情与发布规则", () => {
     await expect(page.getByText("页面暂时无法访问")).toBeVisible();
   });
 
-  test("draft 作品详情不会绕过发布规则", async ({ page }) => {
+  test("未发布作品案例路径保持 404（防御性回归）", async ({ page }) => {
+    // The case-study Markdown is outside the production content source; this is a path-level check.
     const response = await page.goto("/works/jd-skill-radar");
 
     expect(response?.status()).toBe(404);
   });
 });
 
-test.describe("内部工具入口", () => {
-  test("JD Skill Radar 内部入口指向 /tools/jd-skill-radar 且可直接访问", async ({ page }) => {
+test.describe("工具入口", () => {
+  test("JD Skill Radar 公开 Alpha 工具入口指向 /tools/jd-skill-radar 且可直接访问", async ({
+    page,
+  }) => {
     const response = await page.goto("/tools/jd-skill-radar");
 
     expect(response?.status()).toBe(200);
