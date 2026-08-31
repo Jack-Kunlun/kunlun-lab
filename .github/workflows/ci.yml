@@ -30,7 +30,7 @@ jobs:
           corepack prepare pnpm@11.21.0 --activate
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: pnpm
@@ -80,7 +80,7 @@ jobs:
           corepack prepare pnpm@11.21.0 --activate
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: pnpm
@@ -122,7 +122,7 @@ jobs:
           corepack prepare pnpm@11.21.0 --activate
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version-file: .node-version
           cache: pnpm
