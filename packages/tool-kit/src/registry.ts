@@ -11,6 +11,10 @@ export interface WorkToolLink {
   toolId?: string;
 }
 
+export type PublicToolManifest = Omit<ToolManifest, "status"> & {
+  status: Exclude<ToolManifest["status"], "draft">;
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -32,6 +36,10 @@ function assertToolManifest(value: unknown): asserts value is ToolManifest {
 
   if (typeof value.title !== "string" || value.title.trim().length === 0) {
     throw new TypeError(`Tool title must be non-empty: ${id}`);
+  }
+
+  if (typeof value.description !== "string" || value.description.trim().length === 0) {
+    throw new TypeError(`Tool description must be non-empty: ${id}`);
   }
 
   if (typeof value.runtime !== "string" || !supportedToolRuntimes.has(value.runtime)) {
@@ -81,6 +89,27 @@ export function createToolRegistry(
   });
 
   return registry;
+}
+
+/**
+ * Validate the complete manifest set before applying the public visibility policy.
+ * Draft manifests remain registered for tooling/tests but are never exposed to the app.
+ */
+export function createPublicToolRegistry(
+  manifests: readonly ToolManifest[],
+): ReadonlyMap<string, PublicToolManifest> {
+  const registry = createToolRegistry(manifests);
+  const publicRegistry = new Map<string, PublicToolManifest>();
+
+  for (const [id, manifest] of registry) {
+    if (manifest.status === "draft") {
+      continue;
+    }
+
+    publicRegistry.set(id, manifest as PublicToolManifest);
+  }
+
+  return publicRegistry;
 }
 
 export function validateWorkToolLinks(

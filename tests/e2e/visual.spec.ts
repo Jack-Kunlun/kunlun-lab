@@ -7,11 +7,28 @@ import { VUE_JD } from "./fixtures/vue-jd";
  * 首页与文章详情无网格背景，保持零容差。
  */
 const JD_RADAR_SCREENSHOT_OPTIONS = { maxDiffPixelRatio: 0.02 };
+const NON_PRODUCT_OVERLAY_SELECTOR =
+  "#nuxt-devtools-anchor, #vue-tracer-overlay, #nuxt-devtools-container, nuxt-devtools-inspect-panel, nuxt-devtools-frame";
 
 async function waitForStableRendering(page: Page): Promise<void> {
+  await page.addStyleTag({
+    content: `${NON_PRODUCT_OVERLAY_SELECTOR} { display: none !important; }`,
+  });
   await page.evaluate(async () => {
     await document.fonts.ready;
   });
+  await page.evaluate((selector) => {
+    const removeOverlay = () => {
+      document.querySelectorAll(selector).forEach((element) => {
+        element.remove();
+      });
+    };
+
+    removeOverlay();
+    const observer = new MutationObserver(removeOverlay);
+
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+  }, NON_PRODUCT_OVERLAY_SELECTOR);
 }
 
 test.describe("视觉基线", () => {
@@ -32,6 +49,21 @@ test.describe("视觉基线", () => {
     await page.goto("/articles/building-a-personal-lab");
     await waitForStableRendering(page);
     await expect(page).toHaveScreenshot("article-detail.png");
+  });
+
+  test("工具索引", async ({ page }) => {
+    const response = await page.goto("/tools");
+
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("heading", { name: "工具", exact: true })).toBeVisible();
+    await expect(page.getByText("Alpha", { exact: true })).toBeVisible();
+    await expect(page.getByText("前端岗位 JD 技能雷达", { exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "打开工具" })).toHaveAttribute(
+      "href",
+      "/tools/jd-skill-radar",
+    );
+    await waitForStableRendering(page);
+    await expect(page).toHaveScreenshot("tools-index.png", { fullPage: true });
   });
 
   test("JD Skill Radar idle", async ({ page }) => {

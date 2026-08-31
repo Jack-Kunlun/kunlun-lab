@@ -10,6 +10,7 @@ export type ToolRuntime = "client";
 export interface ToolManifest {
   id: string;
   title: string;
+  description: string;
   runtime: ToolRuntime;
   status: Exclude<PublishStatus, "archived">;
   capabilities: readonly ToolCapability[];

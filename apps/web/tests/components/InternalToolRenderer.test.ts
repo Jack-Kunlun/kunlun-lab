@@ -17,6 +17,7 @@ function createManifest(id: string, component: ComponentLoader): ToolManifest {
   return {
     capabilities: [],
     component,
+    description: `测试工具 ${id} 的公开说明。`,
     id,
     runtime: "client",
     status: "alpha",
