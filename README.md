@@ -44,10 +44,11 @@ pnpm dev
 - `/`、`/about`
 - `/articles`、`/articles/[...slug]`
 - `/works`、`/works/[...slug]`
-- `/tools/[toolId]`（已注册工具渲染对应组件，未知 `toolId` 走明确的 not-found 分支）
-- `/api/health`（健康检查接口）
+- `/tools`（公开工具索引）
+- `/tools/[toolId]`（公开 registry 中的工具渲染对应组件，未知 `toolId` 走明确的 not-found 分支）
+- `/api/health`（HTTP/process liveness 接口）
 
-> JD Skill Radar 目前为 alpha 工具：manifest `status: alpha`、作品记录 `status: draft`。它可通过 `/tools/jd-skill-radar` 直接访问，但不属于正式公开发布——不会进入 `/works` 索引，`/works/jd-skill-radar` 作品详情也不开放（返回 404）。
+> JD Skill Radar 是公开可发现和使用的 Alpha 工具：manifest `status: alpha`，会出现在 `/tools` 并可从 `/tools/jd-skill-radar` 使用；对应作品记录保持 `status: draft`，不会进入 `/works` 索引，`/works/jd-skill-radar` 作品详情返回 404。
 
 ## 目录结构
 
@@ -55,10 +56,11 @@ pnpm dev
 apps/web/                         Nuxt 主站
   content/articles/               文章内容
   content/pages/                  页面内容
-  content/works/                  作品与工具介绍
+  content/works/                  公开作品内容
+  content-drafts/works/           尚未公开的作品草稿（不属于 Nuxt Content source）
   pages/                          主站页面与动态路由
   plugins/tool-registry.ts        工具 registry 接入插件
-  server/api/health.get.ts        健康检查接口
+  server/api/health.get.ts        HTTP/process liveness 接口
 packages/shared/                  共享类型与基础结果模型
 packages/ui/                      UI 组件与设计 token
 packages/tool-kit/                工具 manifest、registry、ToolShell
@@ -84,9 +86,9 @@ docs/superpowers/                 历史规格与计划，不作为实时 backlo
 
 ## 内容与工具契约
 
-- 内容按 `apps/web/content/articles`、`apps/web/content/pages`、`apps/web/content/works` 归类，遵守 `apps/web/content.schema.ts` 与仓库校验脚本。
+- 公开内容按 `apps/web/content/articles`、`apps/web/content/pages`、`apps/web/content/works` 归类，遵守 `apps/web/content.schema.ts` 与仓库校验脚本；草稿放在 `apps/web/content-drafts/` 并单独做 schema 校验。
 - 文章 frontmatter 使用 `draft`；作品 frontmatter 使用 `status`（`draft` / `alpha` / `beta` / `maintained` / `archived`）。
-- 新工具放在 `packages/tools/<tool-id>`，通过 `ToolManifest` 声明 `id`、运行时、状态、能力与组件 loader，再由 `apps/web/plugins/tool-registry.ts` 注册到主站；`@kunlun/tool-kit` 提供 registry 校验与 `toolId` 关联校验。
+- 新工具放在 `packages/tools/<tool-id>`，通过 `ToolManifest` 声明 `id`、运行时、状态、能力与组件 loader，再由 `apps/web/plugins/tool-registry.ts` 注册到主站；`@kunlun/tool-kit` 提供完整 registry 校验与 `toolId` 关联校验。完整 registry 保留并校验所有合法 manifest（包括 future `draft`），公开 registry 只暴露 `alpha`、`beta`、`maintained` 状态，工具页面不各自实现隐藏规则。
 - `prebuild` 会执行内容校验与工具关联校验（`scripts/validate-content.ts`、`scripts/validate-tools.ts`）。
 
 ## 隐私边界
@@ -123,7 +125,8 @@ docker compose up -d --build
 docker compose down
 ```
 
-- 健康接口：`GET /api/health`，成功时返回 HTTP 200 与 `application/json`。
+- Liveness 接口：`GET /api/health`，成功时返回 HTTP 200、`application/json` 和精确 payload `{ "status": "ok" }`；它只表示进程已启动并能通过 HTTP 响应，不表示内容边界、外部依赖、托管 readiness 或发布版本。
+- 生产成功响应提供兼容安全头：`Content-Security-Policy: base-uri 'self'; object-src 'none'; frame-ancestors 'none'`、`X-Content-Type-Options: nosniff`、`Referrer-Policy: strict-origin-when-cross-origin` 与 `X-Frame-Options: DENY`；`/api/health` 另返回 `Cache-Control: no-store`。404 等错误响应由 Nitro 的安全错误处理覆盖，JSON 错误分支使用更严格的禁脚本与 `no-referrer` 策略。
 - 运行变量：`LAB_PORT`（宿主机映射端口，默认 3000）、`NODE_ENV`、`PORT`（容器内监听端口）、`HOST`（监听地址）；示例见 `.env.example`。
 - 容器以非 root 用户运行。
 
