@@ -4,6 +4,7 @@
     "eslint.config.ts",
     "prettier.config.ts",
     "playwright.config.ts",
+    "tests/production/**/*.ts",
     "scripts/**/*.ts",
     "tests/repository/**/*.ts"
   ]
