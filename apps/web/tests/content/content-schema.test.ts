@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -167,6 +167,92 @@ featured: false
     ]);
   });
 
+  it("rejects a draft article in the public content directory", () => {
+    const filePath = path.join(fixtureDirectory, "articles/draft.md");
+
+    mkdirSync(path.dirname(filePath), { recursive: true });
+    writeFileSync(
+      filePath,
+      `---
+publishedAt: 2026-08-10
+updatedAt: 2026-08-10
+tags:
+  - 测试
+featured: false
+draft: true
+---
+`,
+      "utf8",
+    );
+
+    expect(validateContentDirectory(fixtureDirectory)).toEqual([
+      {
+        filePath: "articles/draft.md",
+        message: "公开文章不能是草稿；请将草稿移至 apps/web/content-drafts/ 或测试夹具目录。",
+      },
+    ]);
+  });
+
+  it("rejects a draft work in the public content directory", () => {
+    const filePath = path.join(fixtureDirectory, "works/draft.md");
+
+    mkdirSync(path.dirname(filePath), { recursive: true });
+    writeFileSync(
+      filePath,
+      `---
+title: 草稿作品
+description: 仅供草稿目录校验使用。
+type: tool
+status: draft
+publishedAt: 2026-08-10
+updatedAt: 2026-08-10
+featured: false
+---
+`,
+      "utf8",
+    );
+
+    expect(validateContentDirectory(fixtureDirectory)).toEqual([
+      {
+        filePath: "works/draft.md",
+        message: "公开作品不能是 draft；请将草稿移至 apps/web/content-drafts/ 或测试夹具目录。",
+      },
+    ]);
+  });
+
+  it("accepts draft entries when validating an isolated draft directory", () => {
+    const entries = {
+      "articles/draft.md": `---
+publishedAt: 2026-08-10
+updatedAt: 2026-08-10
+tags:
+  - 测试
+featured: false
+draft: true
+---
+`,
+      "works/draft.md": `---
+title: 草稿作品
+description: 仅供草稿目录校验使用。
+type: tool
+status: draft
+publishedAt: 2026-08-10
+updatedAt: 2026-08-10
+featured: false
+---
+`,
+    } as const;
+
+    Object.entries(entries).forEach(([relativePath, content]) => {
+      const filePath = path.join(fixtureDirectory, relativePath);
+
+      mkdirSync(path.dirname(filePath), { recursive: true });
+      writeFileSync(filePath, content, "utf8");
+    });
+
+    expect(validateContentDirectory(fixtureDirectory, { allowDrafts: true })).toEqual([]);
+  });
+
   it("reports Markdown without frontmatter", () => {
     const filePath = path.join(fixtureDirectory, "pages/about.md");
 
@@ -177,6 +263,54 @@ featured: false
       {
         filePath: "pages/about.md",
         message: "缺少 YAML frontmatter。",
+      },
+    ]);
+  });
+
+  it("rejects file, directory, and broken symlinks without following any of them", () => {
+    const articleLink = path.join(fixtureDirectory, "articles/linked.md");
+    const workLink = path.join(fixtureDirectory, "works/linked.md");
+    const directoryLink = path.join(fixtureDirectory, "works/linked-directory");
+    const brokenLink = path.join(fixtureDirectory, "pages/broken.md");
+
+    mkdirSync(path.dirname(articleLink), { recursive: true });
+    mkdirSync(path.dirname(workLink), { recursive: true });
+    mkdirSync(path.dirname(brokenLink), { recursive: true });
+    mkdirSync(path.join(fixtureDirectory, "symlink-target-directory"), { recursive: true });
+    writeFileSync(path.join(fixtureDirectory, "article-target.txt"), "article target\n", "utf8");
+    writeFileSync(path.join(fixtureDirectory, "work-target.txt"), "work target\n", "utf8");
+    symlinkSync(path.join(fixtureDirectory, "article-target.txt"), articleLink);
+    symlinkSync(path.join(fixtureDirectory, "work-target.txt"), workLink);
+    symlinkSync(path.join(fixtureDirectory, "symlink-target-directory"), directoryLink, "dir");
+    symlinkSync(path.join(fixtureDirectory, "missing-target.md"), brokenLink);
+
+    const issues = validateContentDirectory(fixtureDirectory);
+
+    expect(issues.map(({ filePath }) => filePath)).toEqual([
+      "articles/linked.md",
+      "pages/broken.md",
+      "works/linked-directory",
+      "works/linked.md",
+    ]);
+    expect(issues.every(({ message }) => message.includes("符号链接"))).toBe(true);
+  });
+
+  it("rejects a symlink validation root before traversing its target", () => {
+    const rootTarget = path.join(fixtureDirectory, "root-target");
+    const rootLink = path.join(fixtureDirectory, "root-link");
+
+    mkdirSync(path.join(rootTarget, "articles"), { recursive: true });
+    writeFileSync(
+      path.join(rootTarget, "articles/draft.md"),
+      "---\npublishedAt: 2026-08-10\nupdatedAt: 2026-08-10\ntags:\n  - 测试\nfeatured: false\ndraft: true\n---\n",
+      "utf8",
+    );
+    symlinkSync(rootTarget, rootLink, "dir");
+
+    expect(validateContentDirectory(rootLink)).toEqual([
+      {
+        filePath: ".",
+        message: "内容校验根目录禁止符号链接；请使用真实目录。",
       },
     ]);
   });

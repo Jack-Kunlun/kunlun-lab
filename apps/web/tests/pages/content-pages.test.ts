@@ -20,6 +20,8 @@ interface ContentEntry {
 
 const contentRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../content");
 
+// This suite reads the public content source only; production draft exclusion is covered by P0 gates.
+
 await setup({
   browser: false,
   build: true,
@@ -162,7 +164,7 @@ describe("content pages", () => {
     }
   });
 
-  it("filters the works index to public entries with type and status labels", async () => {
+  it("renders the works index from public entries with type and status labels", async () => {
     const { html, status } = await fetchHtml("/works");
 
     expect(status).toBe(200);
@@ -226,7 +228,7 @@ describe("content pages", () => {
     expect(unknown.status).toBe(404);
   });
 
-  it("renders a public work detail and 404s unknown and draft work slugs", async () => {
+  it("renders a published work detail and returns 404 for unknown or unpublished work paths", async () => {
     const publicWorkEntry = works.find((work) => work.slug === "interview-notes");
 
     if (publicWorkEntry === undefined) {

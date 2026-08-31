@@ -4,7 +4,7 @@ description: 在浏览器本地把一份前端招聘 JD 整理为可核对的技
 type: tool
 status: draft
 publishedAt: 2026-08-10
-updatedAt: 2026-08-22
+updatedAt: 2026-08-31
 featured: false
 toolId: jd-skill-radar
 ---
@@ -19,4 +19,4 @@ toolId: jd-skill-radar
 
 ## 当前发布策略
 
-工具当前处于 alpha 阶段，可通过 [`/tools/jd-skill-radar`](/tools/jd-skill-radar) 直接访问。本作品记录继续保持 `draft`，因此不会进入公开作品索引，也不会开放 `/works/jd-skill-radar` 详情页。当前策略仅用于有限测试，不代表正式公开发布。JD 内容仍只在浏览器本地处理，不上传、不保存。
+工具以公开 Alpha 状态发布，可从 [`/tools`](/tools) 发现并通过 [`/tools/jd-skill-radar`](/tools/jd-skill-radar) 使用。本作品案例记录仍保持 `draft`，未进入 Works，也不会开放 `/works/jd-skill-radar` 详情页。JD 内容仍只在浏览器本地处理，不上传、不保存。

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "prebuild": "node ../../scripts/validate-content.ts && node ../../scripts/validate-tools.ts",
     "postinstall": "nuxt prepare",
     "test": "pnpm run test:components && pnpm run test:server && pnpm run test:ssr",
     "test:components": "vitest run --passWithNoTests tests/components",
